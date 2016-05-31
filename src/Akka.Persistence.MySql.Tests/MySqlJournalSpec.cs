@@ -1,8 +1,13 @@
-﻿using System.Configuration;
-using Akka.Actor;
+﻿//-----------------------------------------------------------------------
+// <copyright file="MySqlJournalSpec.cs" company="Akka.NET Project">
+//     Copyright (C) 2009-2016 Lightbend Inc. <http://www.lightbend.com>
+//     Copyright (C) 2013-2016 Akka.NET project <https://github.com/akkadotnet/akka.net>
+// </copyright>
+//-----------------------------------------------------------------------
+
+using System.Configuration;
 using Akka.Configuration;
 using Akka.Persistence.TestKit.Journal;
-using Akka.TestKit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -13,12 +18,12 @@ namespace Akka.Persistence.MySql.Tests
     {
         private static readonly Config SpecConfig;
 
-        static MySqlJournalSpec() 
+        static MySqlJournalSpec()
         {
             var connectionString = ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString;
 
-            var config = @"
-                akka.test.single-expect-default = 15s
+            SpecConfig = ConfigurationFactory.ParseString(@"
+                akka.test.single-expect-default = 3s
                 akka.persistence {
                     publish-plugin-commands = on
                     journal {
@@ -31,17 +36,16 @@ namespace Akka.Persistence.MySql.Tests
                             connection-string = """ + connectionString + @"""
                         }
                     }
-                }";
+                }");
 
-            SpecConfig = ConfigurationFactory.ParseString(config);
-
-            //need to make sure db is created before the tests start
             DbUtils.Initialize();
         }
 
         public MySqlJournalSpec(ITestOutputHelper output)
-            : base(SpecConfig, "MySqlJournalSpec", output: output)
+            : base(SpecConfig, typeof(MySqlJournalSpec).Name, output)
         {
+            MySqlPersistence.Get(Sys);
+
             Initialize();
         }
 
@@ -49,21 +53,6 @@ namespace Akka.Persistence.MySql.Tests
         {
             base.Dispose(disposing);
             DbUtils.Clean();
-        }
-
-        [Fact]
-        public void Journal_should_not_reset_HighestSequenceNr_after_journal_cleanup()
-        {
-            TestProbe _receiverProbe = CreateTestProbe();
-            Journal.Tell(new ReplayMessages(0, long.MaxValue, long.MaxValue, Pid, _receiverProbe.Ref));
-            for (int i = 1; i <= 5; i++) _receiverProbe.ExpectMsg<ReplayedMessage>(m => IsReplayedMessage(m, i));
-            _receiverProbe.ExpectMsg<RecoverySuccess>(m => m.HighestSequenceNr == 5L);
-
-            Journal.Tell(new DeleteMessagesTo(Pid, long.MaxValue, _receiverProbe.Ref));
-            _receiverProbe.ExpectMsg<DeleteMessagesSuccess>(m => m.ToSequenceNr == long.MaxValue);
-
-            Journal.Tell(new ReplayMessages(0, long.MaxValue, long.MaxValue, Pid, _receiverProbe.Ref));
-            _receiverProbe.ExpectMsg<RecoverySuccess>(m => m.HighestSequenceNr == 5L);
         }
     }
 }

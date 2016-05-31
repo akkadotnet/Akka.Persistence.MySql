@@ -13,6 +13,7 @@ Remember that connection string must be provided separately to Journal and Snaps
 ```hocon
 akka.persistence{
 	journal {
+		plugin = "akka.persistence.journal.mysql"
 		mysql {
 			# qualified type name of the MySql persistence journal actor
 			class = "Akka.Persistence.MySql.Journal.MySqlJournal, Akka.Persistence.MySql"
@@ -22,6 +23,9 @@ akka.persistence{
 
 			# connection string used for database access
 			connection-string = ""
+
+			# connection string name for .config file used when no connection string has been provided
+			connection-string-name = ""
 
 			# default SQL commands timeout
 			connection-timeout = 30s
@@ -41,6 +45,7 @@ akka.persistence{
 	}
 
 	snapshot-store {
+		plugin = "akka.persistence.snapshot-store.mysql"
 		mysql {
 			# qualified type name of the MySql persistence journal actor
 			class = "Akka.Persistence.MySql.Snapshot.MySqlSnapshotStore, Akka.Persistence.MySql"
@@ -50,6 +55,9 @@ akka.persistence{
 
 			# connection string used for database access
 			connection-string = ""
+
+			# connection string name for .config file used when no connection string has been provided
+			connection-string-name = ""
 
 			# default SQL commands timeout
 			connection-timeout = 30s
@@ -75,6 +83,7 @@ CREATE TABLE IF NOT EXISTS {your_journal_table_name} (
     created_at BIGINT NOT NULL,
     manifest VARCHAR(500) NOT NULL,
     payload BLOB NOT NULL,
+    tags VARCHAR(100) NULL,
     PRIMARY KEY (persistence_id, sequence_nr),
     INDEX {your_journal_table_name}_sequence_nr_idx (sequence_nr),
     INDEX {your_journal_table_name}_created_at_idx (created_at)

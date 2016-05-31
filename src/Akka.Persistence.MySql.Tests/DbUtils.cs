@@ -1,4 +1,11 @@
-﻿using System;
+﻿//-----------------------------------------------------------------------
+// <copyright file="DbUtils.cs" company="Akka.NET Project">
+//     Copyright (C) 2009-2016 Lightbend Inc. <http://www.lightbend.com>
+//     Copyright (C) 2013-2016 Akka.NET project <https://github.com/akkadotnet/akka.net>
+// </copyright>
+//-----------------------------------------------------------------------
+
+using System;
 using System.Configuration;
 using MySql.Data.MySqlClient;
 
@@ -32,7 +39,7 @@ namespace Akka.Persistence.MySql.Tests
 
                 if (dbExists)
                 {
-                    DoClean(conn);
+                    DropTables(conn);
                 }
                 else
                 {
@@ -48,8 +55,7 @@ namespace Akka.Persistence.MySql.Tests
             using (var conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-
-                DoClean(conn);
+                DropTables(conn);
             }
         }
 
@@ -63,7 +69,7 @@ namespace Akka.Persistence.MySql.Tests
             }
         }
 
-        private static void DoClean(MySqlConnection conn)
+        private static void DropTables(MySqlConnection conn)
         {
             using (var cmd = new MySqlCommand())
             {
