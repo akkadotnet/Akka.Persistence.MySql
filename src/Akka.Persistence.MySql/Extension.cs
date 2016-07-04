@@ -1,5 +1,10 @@
-﻿using System;
-using System.Configuration;
+﻿//-----------------------------------------------------------------------
+// <copyright file="Extension.cs" company="Akka.NET Project">
+//     Copyright (C) 2009-2016 Lightbend Inc. <http://www.lightbend.com>
+//     Copyright (C) 2013-2016 Akka.NET project <https://github.com/akkadotnet/akka.net>
+// </copyright>
+//-----------------------------------------------------------------------
+
 using Akka.Actor;
 using Akka.Configuration;
 using Akka.Persistence.Sql.Common;
@@ -11,23 +16,10 @@ namespace Akka.Persistence.MySql
     /// </summary>
     public class MySqlJournalSettings : JournalSettings
     {
-        public const string JournalConfigPath = "akka.persistence.journal.mysql";
+        public const string ConfigPath = "akka.persistence.journal.mysql";
 
-        /// <summary>
-        /// Flag determining in case of event journal table missing, it should be automatically initialized.
-        /// </summary>
-        public bool AutoInitialize { get; private set; }
-
-        /// <summary>
-        /// Metadata table name
-        /// </summary>
-        public string MetadataTableName { get; private set; }
-
-        public MySqlJournalSettings(Config config)
-            : base(config)
+        public MySqlJournalSettings(Config config) : base(config)
         {
-            AutoInitialize = config.GetBoolean("auto-initialize");
-            MetadataTableName = config.GetString("metadata-table-name");
         }
     }
 
@@ -36,17 +28,10 @@ namespace Akka.Persistence.MySql
     /// </summary>
     public class MySqlSnapshotStoreSettings : SnapshotStoreSettings
     {
-        public const string SnapshotStoreConfigPath = "akka.persistence.snapshot-store.mysql";
+        public const string ConfigPath = "akka.persistence.snapshot-store.mysql";
 
-        /// <summary>
-        /// Flag determining in case of snapshot store table missing, it should be automatically initialized.
-        /// </summary>
-        public bool AutoInitialize { get; private set; }
-
-        public MySqlSnapshotStoreSettings(Config config)
-            : base(config)
+        public MySqlSnapshotStoreSettings(Config config) : base(config)
         {
-            AutoInitialize = config.GetBoolean("auto-initialize");
         }
     }
 
@@ -72,38 +57,20 @@ namespace Akka.Persistence.MySql
         /// <summary>
         /// Journal-related settings loaded from HOCON configuration.
         /// </summary>
-        public readonly MySqlJournalSettings JournalSettings;
+        public readonly Config DefaultJournalConfig;
 
         /// <summary>
         /// Snapshot store related settings loaded from HOCON configuration.
         /// </summary>
-        public readonly MySqlSnapshotStoreSettings SnapshotSettings;
+        public readonly Config DefaultSnapshotConfig;
 
         public MySqlPersistence(ExtendedActorSystem system)
         {
-            system.Settings.InjectTopLevelFallback(DefaultConfiguration());
+            var defaultConfig = DefaultConfiguration();
+            system.Settings.InjectTopLevelFallback(defaultConfig);
 
-            JournalSettings = new MySqlJournalSettings(system.Settings.Config.GetConfig(MySqlJournalSettings.JournalConfigPath));
-            SnapshotSettings = new MySqlSnapshotStoreSettings(system.Settings.Config.GetConfig(MySqlSnapshotStoreSettings.SnapshotStoreConfigPath));
-
-            if (JournalSettings.AutoInitialize)
-            {
-                var connectionString = string.IsNullOrEmpty(JournalSettings.ConnectionString)
-                    ? ConfigurationManager.ConnectionStrings[JournalSettings.ConnectionStringName].ConnectionString
-                    : JournalSettings.ConnectionString;
-
-                MySqlInitializer.CreateMySqlJournalTables(connectionString, JournalSettings.TableName);
-                MySqlInitializer.CreateMySqlMetadataTables(connectionString, JournalSettings.MetadataTableName);
-            }
-
-            if (SnapshotSettings.AutoInitialize)
-            {
-                var connectionString = string.IsNullOrEmpty(SnapshotSettings.ConnectionString)
-                    ? ConfigurationManager.ConnectionStrings[SnapshotSettings.ConnectionStringName].ConnectionString
-                    : SnapshotSettings.ConnectionString;
-
-                MySqlInitializer.CreateMySqlSnapshotStoreTables(connectionString, SnapshotSettings.TableName);
-            }
+            DefaultJournalConfig = defaultConfig.GetConfig(MySqlJournalSettings.ConfigPath);
+            DefaultSnapshotConfig = defaultConfig.GetConfig(MySqlSnapshotStoreSettings.ConfigPath);
         }
     }
 
@@ -112,7 +79,6 @@ namespace Akka.Persistence.MySql
     /// </summary>
     public class MySqlPersistenceProvider : ExtensionIdProvider<MySqlPersistence>
     {
-        
         /// <summary>
         /// Creates an actor system extension for akka persistence MySql support.
         /// </summary>

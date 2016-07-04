@@ -1,90 +1,47 @@
-﻿using System.Data.Common;
-using System.Threading.Tasks;
-using Akka.Actor;
+﻿//-----------------------------------------------------------------------
+// <copyright file="MySqlJournal.cs" company="Akka.NET Project">
+//     Copyright (C) 2009-2016 Lightbend Inc. <http://www.lightbend.com>
+//     Copyright (C) 2013-2016 Akka.NET project <https://github.com/akkadotnet/akka.net>
+// </copyright>
+//-----------------------------------------------------------------------
+
+using System.Data.Common;
+using Akka.Configuration;
 using Akka.Persistence.Sql.Common.Journal;
 using MySql.Data.MySqlClient;
 
 namespace Akka.Persistence.MySql.Journal
 {
-    public class MySqlJournalEngine : JournalDbEngine
-    {
-        public readonly MySqlJournalSettings MySqlJournalSettings;
-
-        public MySqlJournalEngine(ActorSystem system)
-            : base(system)
-        {
-            MySqlJournalSettings = new MySqlJournalSettings(system.Settings.Config.GetConfig(MySqlJournalSettings.JournalConfigPath));
-
-            QueryBuilder = new MySqlJournalQueryBuilder(Settings.TableName, MySqlJournalSettings.MetadataTableName);
-        }
-
-        protected override string JournalConfigPath { get { return MySqlJournalSettings.JournalConfigPath; } }
-
-        protected override DbConnection CreateDbConnection(string connectionString)
-        {
-            return new MySqlConnection(connectionString);
-        }
-
-        protected override void CopyParamsToCommand(DbCommand sqlCommand, JournalEntry entry)
-        {
-            sqlCommand.Parameters["@persistence_id"].Value = entry.PersistenceId;
-            sqlCommand.Parameters["@sequence_nr"].Value = entry.SequenceNr;
-            sqlCommand.Parameters["@is_deleted"].Value = entry.IsDeleted;
-            sqlCommand.Parameters["@created_at"].Value = entry.Timestamp.Ticks;
-            sqlCommand.Parameters["@manifest"].Value = entry.Manifest;
-            sqlCommand.Parameters["@payload"].Value = entry.Payload;
-        }
-    }
-
     /// <summary>
     /// Persistent journal actor using MySql as persistence layer. It processes write requests
     /// one by one in synchronous manner, while reading results asynchronously.
     /// </summary>
     public class MySqlJournal : SqlJournal
     {
-        public readonly MySqlPersistence Extension = MySqlPersistence.Get(Context.System);
+        public static readonly MySqlPersistence Extension = MySqlPersistence.Get(Context.System);
 
-        private readonly string _updateSequenceNrSql;
-
-        public MySqlJournal() : base(new MySqlJournalEngine(Context.System))
+        public MySqlJournal(Config journalConfig) : base(journalConfig)
         {
-            string tableName = Extension.JournalSettings.MetadataTableName;
-
-            _updateSequenceNrSql = @"INSERT INTO {0} (persistence_id, sequence_nr) VALUES(@persistence_id, @sequence_nr) ON DUPLICATE KEY UPDATE persistence_id = @persistence_id, sequence_nr = @sequence_nr".QuoteTable(tableName);
+            var config = journalConfig.WithFallback(Extension.DefaultJournalConfig);
+            QueryExecutor = new MySqlJournalQueryExecutor(new QueryConfiguration(
+                schemaName: config.GetString("schema-name"),
+                journalEventsTableName: config.GetString("table-name"),
+                metaTableName: config.GetString("metadata-table-name"),
+                persistenceIdColumnName: "persistence_id",
+                sequenceNrColumnName: "sequence_nr",
+                payloadColumnName: "payload",
+                manifestColumnName: "manifest",
+                timestampColumnName: "created_at",
+                isDeletedColumnName: "is_deleted",
+                tagsColumnName: "tags",
+                timeout: config.GetTimeSpan("connection-timeout")),
+                    Context.System.Serialization,
+                    GetTimestampProvider(config.GetString("timestamp-provider")));
         }
 
-        protected override async Task DeleteMessagesToAsync(string persistenceId, long toSequenceNr)
-        {
-            long highestSequenceNr = await DbEngine.ReadHighestSequenceNrAsync(persistenceId, 0);
-            await base.DeleteMessagesToAsync(persistenceId, toSequenceNr);
+        protected override DbConnection CreateDbConnection(string connectionString) => new MySqlConnection(connectionString);
 
-            if (highestSequenceNr <= toSequenceNr)
-            {
-                await UpdateSequenceNr(persistenceId, highestSequenceNr);
-            }
-        }
-
-        private async Task UpdateSequenceNr(string persistenceId, long toSequenceNr)
-        {
-            using (DbConnection connection = DbEngine.CreateDbConnection())
-            {
-                await connection.OpenAsync();
-                using (DbCommand sqlCommand = new MySqlCommand(_updateSequenceNrSql))
-                {
-                    sqlCommand.Parameters.Add(new MySqlParameter("@persistence_id", MySqlDbType.VarChar, persistenceId.Length)
-                    {
-                        Value = persistenceId
-                    });
-                    sqlCommand.Parameters.Add(new MySqlParameter("@sequence_nr", MySqlDbType.Int64)
-                    {
-                        Value = toSequenceNr
-                    });
-
-                    sqlCommand.Connection = connection;
-                    sqlCommand.CommandTimeout = (int)Extension.JournalSettings.ConnectionTimeout.TotalMilliseconds;
-                    await sqlCommand.ExecuteNonQueryAsync();
-                }
-            }
-        }
+        protected override string JournalConfigPath => MySqlJournalSettings.ConfigPath;
+        public override IJournalQueryExecutor QueryExecutor { get; }
     }
 }
