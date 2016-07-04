@@ -1,6 +1,13 @@
-﻿using System.Configuration;
+﻿//-----------------------------------------------------------------------
+// <copyright file="MySqlJournalSpec.cs" company="Akka.NET Project">
+//     Copyright (C) 2009-2016 Lightbend Inc. <http://www.lightbend.com>
+//     Copyright (C) 2013-2016 Akka.NET project <https://github.com/akkadotnet/akka.net>
+// </copyright>
+//-----------------------------------------------------------------------
+
+using System.Configuration;
 using Akka.Configuration;
-using Akka.Persistence.Sql.Common.TestKit;
+using Akka.Persistence.Sql.TestKit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -9,14 +16,19 @@ namespace Akka.Persistence.MySql.Tests
     [Collection("MySqlSpec")]
     public class MySqlJournalQuerySpec : SqlJournalQuerySpec
     {
-        private static readonly Config SpecConfig;
+        public MySqlJournalQuerySpec(ITestOutputHelper output) : base(CreateSpecConfig())
+        {
+            MySqlPersistence.Get(Sys);
 
-        static MySqlJournalQuerySpec()
+            Initialize();
+        }
+
+        private static Config CreateSpecConfig()
         {
             var connectionString = ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString;
 
-            var specString = @"
-                akka.test.single-expect-default = 15s
+            return ConfigurationFactory.ParseString(@"
+                akka.test.single-expect-default = 3s
                 akka.persistence {
                     publish-plugin-commands = on
                     journal {
@@ -29,24 +41,7 @@ namespace Akka.Persistence.MySql.Tests
                             connection-string = """ + connectionString + @"""
                         }
                     }
-                } " + TimestampConfig("akka.persistence.journal.mysql");
-
-            SpecConfig = ConfigurationFactory.ParseString(specString);
-
-            //need to make sure db is created before the tests start
-            DbUtils.Initialize();
-        }
-
-        public MySqlJournalQuerySpec(ITestOutputHelper output)
-            : base(SpecConfig, "MySqlJournalQuerySpec", output)
-        {
-            Initialize();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            DbUtils.Clean();
+                } " + TimestampConfig("akka.persistence.journal.mysql"));
         }
     }
 }
