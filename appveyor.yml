@@ -7,8 +7,7 @@ build_script:
 - ps: $cmd = '"C:\Program Files\MySql\MySQL Server 5.7\bin\mysql" -e "create database akka_persistence_tests;" --user=root'
 - ps: iex "& $cmd"
 - cmd: build.cmd Build
-test:
-  assemblies:
-    - Akka.Persistence.MySql.Tests.dll
+test_script:
+- cmd: build.cmd RunTests
 services:
   - mysql
