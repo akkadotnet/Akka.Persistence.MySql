@@ -21,7 +21,7 @@ namespace Akka.Persistence.MySql.Tests
 
             Assert.NotNull(config);
             Assert.Equal("akka.persistence.journal.mysql", Sys.Settings.Config.GetString("akka.persistence.journal.plugin"));
-            Assert.Equal("Akka.Persistence.MySql.Journal.MySqlSqlJournal, Akka.Persistence.MySql", config.GetString("class"));
+            Assert.Equal("Akka.Persistence.MySql.Journal.MySqlJournal, Akka.Persistence.MySql", config.GetString("class"));
             Assert.Equal("akka.actor.default-dispatcher", config.GetString("plugin-dispatcher"));
             Assert.Equal(string.Empty, config.GetString("connection-string"));
             Assert.Equal(string.Empty, config.GetString("connection-string-name"));
