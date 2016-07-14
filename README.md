@@ -1,4 +1,4 @@
-## Akka.Persistence.MySql
+#Akka.Persistence.MySql [![Build status](https://ci.appveyor.com/api/projects/status/6tiq7gs3kgsqj8xe/branch/master?svg=true)](https://ci.appveyor.com/project/ravengerUA/akka-persistence-mysql/branch/master)
 
 Akka Persistence journal and snapshot store backed by MySql database.
 
