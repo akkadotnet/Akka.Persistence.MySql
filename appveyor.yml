@@ -1,0 +1,14 @@
+version: '{build}'
+skip_tags: true
+image: Visual Studio 2015
+configuration: Release
+build_script:
+- ps: $env:MYSQL_PWD="Password12!"
+- ps: $cmd = '"C:\Program Files\MySql\MySQL Server 5.7\bin\mysql" -e "create database akka_persistence_tests;" --user=root'
+- ps: iex "& $cmd"
+- cmd: build.cmd Build
+test:
+  assemblies:
+    - Akka.Persistence.MySql.Tests.dll
+services:
+  - mysql
