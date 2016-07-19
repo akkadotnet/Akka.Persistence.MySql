@@ -1,2 +1,2 @@
-#### 1.0.7 April 07 2016 ####
-Support for Akka 1.0.7
+#### 1.0.0 July 18 2016 ####
+Initial release
