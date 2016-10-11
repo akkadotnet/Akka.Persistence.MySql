@@ -23,7 +23,7 @@ namespace Akka.Persistence.MySql.Snapshot
                     {configuration.SequenceNrColumnName} BIGINT NOT NULL,
                     {configuration.TimestampColumnName} BIGINT NOT NULL,
                     {configuration.ManifestColumnName} VARCHAR(255) NOT NULL,
-                    {configuration.PayloadColumnName} BLOB NOT NULL,
+                    {configuration.PayloadColumnName} LONGBLOB NOT NULL,
                     PRIMARY KEY ({configuration.PersistenceIdColumnName}, {configuration.SequenceNrColumnName}),
                     INDEX {configuration.SnapshotTableName}_sequence_nr_idx ({configuration.SequenceNrColumnName}),
                     INDEX {configuration.SnapshotTableName}_created_at_idx ({configuration.TimestampColumnName})

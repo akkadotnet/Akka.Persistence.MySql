@@ -25,7 +25,7 @@ namespace Akka.Persistence.MySql.Journal
                     {configuration.IsDeletedColumnName} BIT NOT NULL,
                     {configuration.ManifestColumnName} VARCHAR(500) NOT NULL,
                     {configuration.TimestampColumnName} BIGINT NOT NULL,
-                    {configuration.PayloadColumnName} BLOB NOT NULL,
+                    {configuration.PayloadColumnName} LONGBLOB NOT NULL,
                     {configuration.TagsColumnName} VARCHAR(100) NULL,
                     PRIMARY KEY ({configuration.PersistenceIdColumnName}, {configuration.SequenceNrColumnName}),
                     INDEX {configuration.JournalEventsTableName}_sequence_nr_idx ({configuration.SequenceNrColumnName}),
