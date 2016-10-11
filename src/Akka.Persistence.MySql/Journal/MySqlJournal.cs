@@ -34,7 +34,8 @@ namespace Akka.Persistence.MySql.Journal
                 timestampColumnName: "created_at",
                 isDeletedColumnName: "is_deleted",
                 tagsColumnName: "tags",
-                timeout: config.GetTimeSpan("connection-timeout")),
+                timeout: config.GetTimeSpan("connection-timeout"),
+                orderingColumnName: "ordering"),
                     Context.System.Serialization,
                     GetTimestampProvider(config.GetString("timestamp-provider")));
         }
