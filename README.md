@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS {your_journal_table_name} (
     is_deleted BIT NOT NULL,
     created_at BIGINT NOT NULL,
     manifest VARCHAR(500) NOT NULL,
-    payload BLOB NOT NULL,
+    payload LONGBLOB NOT NULL,
     tags VARCHAR(100) NULL,
     PRIMARY KEY (persistence_id, sequence_nr),
     INDEX {your_journal_table_name}_sequence_nr_idx (sequence_nr),
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS {your_snapshot_table_name} (
     sequence_nr BIGINT NOT NULL,
     created_at BIGINT NOT NULL,
     manifest VARCHAR(500) NOT NULL,
-    snapshot BLOB NOT NULL,
+    snapshot LONGBLOB NOT NULL,
     PRIMARY KEY (persistence_id, sequence_nr),
     INDEX {your_snapshot_table_name}_sequence_nr_idx (sequence_nr),
     INDEX {your_snapshot_table_name}_created_at_idx (created_at)
