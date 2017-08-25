@@ -7,7 +7,7 @@
 
 using System.Configuration;
 using Akka.Configuration;
-using Akka.Persistence.Sql.TestKit;
+using Akka.Persistence.TCK.Query;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -42,7 +42,7 @@ namespace Akka.Persistence.MySql.Tests.Query
                 akka.test.single-expect-default = 10s");
         }
 
-        public MySqlEventsByTagSpec(ITestOutputHelper output) : base(SpecConfig, output)
+        public MySqlEventsByTagSpec(ITestOutputHelper output) : base(SpecConfig, nameof(MySqlEventsByTagSpec), output)
         {
             DbUtils.Initialize();
         }

@@ -7,14 +7,14 @@
 
 using System.Configuration;
 using Akka.Configuration;
-using Akka.Persistence.Sql.TestKit;
+using Akka.Persistence.TCK.Query;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Akka.Persistence.MySql.Tests.Query
 {
     [Collection("MySqlSpec")]
-    public class MySqlAllPersistenceIdsSpec : AllPersistenceIdsSpec
+    public class MySqlAllPersistenceIdsSpec : PersistenceIdsSpec
     {
         private static readonly Config SpecConfig;
 
@@ -36,7 +36,7 @@ namespace Akka.Persistence.MySql.Tests.Query
                 akka.test.single-expect-default = 10s");
         }
 
-        public MySqlAllPersistenceIdsSpec(ITestOutputHelper output) : base(SpecConfig, output)
+        public MySqlAllPersistenceIdsSpec(ITestOutputHelper output) : base(SpecConfig, nameof(MySqlAllPersistenceIdsSpec), output)
         {
             DbUtils.Initialize();
         }

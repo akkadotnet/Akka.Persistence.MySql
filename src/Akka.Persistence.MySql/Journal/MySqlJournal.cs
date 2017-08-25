@@ -34,8 +34,10 @@ namespace Akka.Persistence.MySql.Journal
                 timestampColumnName: "created_at",
                 isDeletedColumnName: "is_deleted",
                 tagsColumnName: "tags",
+                orderingColumnName: "ordering",
+                serializerIdColumnName: "serializer_id",
                 timeout: config.GetTimeSpan("connection-timeout"),
-                orderingColumnName: "ordering"),
+                defaultSerializer: config.GetString("default-serializer")),
                     Context.System.Serialization,
                     GetTimestampProvider(config.GetString("timestamp-provider")));
         }

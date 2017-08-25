@@ -7,14 +7,14 @@
 
 using System.Configuration;
 using Akka.Configuration;
-using Akka.Persistence.Sql.TestKit;
 using Xunit;
 using Xunit.Abstractions;
+using Akka.Persistence.TCK.Journal;
 
 namespace Akka.Persistence.MySql.Tests
 {
     [Collection("MySqlSpec")]
-    public class MySqlJournalQuerySpec : SqlJournalQuerySpec
+    public class MySqlJournalQuerySpec : JournalSpec
     {
         private static readonly Config SpecConfig;
 
@@ -36,7 +36,7 @@ namespace Akka.Persistence.MySql.Tests
                             connection-string = """ + connectionString + @"""
                         }
                     }
-                } " + TimestampConfig("akka.persistence.journal.mysql"));
+                }");
 
             DbUtils.Initialize();
         }
