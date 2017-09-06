@@ -24,6 +24,7 @@ namespace Akka.Persistence.MySql.Snapshot
                     {configuration.TimestampColumnName} BIGINT NOT NULL,
                     {configuration.ManifestColumnName} VARCHAR(255) NOT NULL,
                     {configuration.PayloadColumnName} LONGBLOB NOT NULL,
+                    {configuration.SerializerIdColumnName} INT,
                     PRIMARY KEY ({configuration.PersistenceIdColumnName}, {configuration.SequenceNrColumnName}),
                     INDEX {configuration.SnapshotTableName}_sequence_nr_idx ({configuration.SequenceNrColumnName}),
                     INDEX {configuration.SnapshotTableName}_created_at_idx ({configuration.TimestampColumnName})
@@ -35,8 +36,9 @@ namespace Akka.Persistence.MySql.Snapshot
                     {configuration.SequenceNrColumnName},
                     {configuration.TimestampColumnName},
                     {configuration.ManifestColumnName},
-                    {configuration.PayloadColumnName})
-                VALUES (@PersistenceId, @SequenceNr, @Timestamp, @Manifest, @Payload)
+                    {configuration.PayloadColumnName},
+                    {Configuration.SerializerIdColumnName})
+                VALUES (@PersistenceId, @SequenceNr, @Timestamp, @Manifest, @Payload, @SerializerId)
                 ON DUPLICATE KEY
                 UPDATE {configuration.TimestampColumnName} = @Timestamp, {configuration.PayloadColumnName} = @Payload
             ";

@@ -7,6 +7,8 @@
 
 using System.Configuration;
 using Akka.Configuration;
+using Akka.Persistence.Query;
+using Akka.Persistence.Query.Sql;
 using Akka.Persistence.TCK.Query;
 using Xunit;
 using Xunit.Abstractions;
@@ -39,6 +41,7 @@ namespace Akka.Persistence.MySql.Tests.Query
         public MySqlEventsByPersistenceIdSpec(ITestOutputHelper output) : base(SpecConfig, nameof(MySqlEventsByPersistenceIdSpec), output)
         {
             DbUtils.Initialize();
+            ReadJournal = Sys.ReadJournalFor<SqlReadJournal>(SqlReadJournal.Identifier);
         }
 
         protected override void Dispose(bool disposing)

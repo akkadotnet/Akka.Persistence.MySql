@@ -3,7 +3,8 @@
 # Fake directories
 src/.build/**
 
-
+# Rider
+.idea
 
 #GitExtensions
 us.stackdump
