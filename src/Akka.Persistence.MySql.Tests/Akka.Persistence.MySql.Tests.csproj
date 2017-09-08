@@ -1,28 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-      <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
-      <PackageReference Include="Akka" Version="1.3.1" />
-      <PackageReference Include="Akka.Persistence" Version="1.3.1" />
-      <PackageReference Include="Akka.Persistence.Sql.Common" Version="1.3.1" />
-      <PackageReference Include="Akka.Persistence.Sql.TestKit" Version="1.3.1" />
-      <PackageReference Include="Akka.TestKit" Version="1.3.1" />
-      <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.2" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="1.1.2" />
-      <PackageReference Include="xunit" Version="2.3.0-*" />
-      <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-*" />
-      <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-*" />
-    </ItemGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Akka.Persistence.MySql\Akka.Persistence.MySql.csproj" />
-    </ItemGroup>
+  <PropertyGroup>
+    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="Akka" Version="1.3.1" />
+    <PackageReference Include="Akka.Persistence" Version="1.3.1" />
+    <PackageReference Include="Akka.Persistence.Sql.Common" Version="1.3.1" />
+    <PackageReference Include="Akka.Persistence.Sql.TestKit" Version="1.3.1" />
+    <PackageReference Include="Akka.TestKit" Version="1.3.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="1.1.2" />
+    <PackageReference Include="MySql.Data" Version="8.0.8-dmr" />
+    <PackageReference Include="xunit" Version="2.3.0-*" />
+    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-*" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Akka.Persistence.MySql\Akka.Persistence.MySql.csproj" />
+  </ItemGroup>
 </Project>
