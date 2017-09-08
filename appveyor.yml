@@ -6,11 +6,6 @@
   image: Visual Studio 2017
   platform: Any CPU
   configuration: Release
-  install:
-  - nuget install redis-64 -excludeversion
-  - redis-64\tools\redis-server.exe --service-install
-  - redis-64\tools\redis-server.exe --service-start
-  - '@ECHO Redis Started'
   build_script:
   - ps: $env:MYSQL_PWD="Password12!"
   - ps: $cmd = '"C:\Program Files\MySql\MySQL Server 5.7\bin\mysql" -e "create database akka_persistence_tests;" --user=root'
@@ -39,11 +34,6 @@
   image: Visual Studio 2017
   platform: Any CPU
   configuration: Release
-  install:
-  - nuget install redis-64 -excludeversion
-  - redis-64\tools\redis-server.exe --service-install
-  - redis-64\tools\redis-server.exe --service-start
-  - '@ECHO Redis Started'
   build_script:
   - ps: $env:MYSQL_PWD="Password12!"
   - ps: $cmd = '"C:\Program Files\MySql\MySQL Server 5.7\bin\mysql" -e "create database akka_persistence_tests;" --user=root'
