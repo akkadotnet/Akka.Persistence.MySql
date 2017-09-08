@@ -30,7 +30,9 @@ namespace Akka.Persistence.MySql.Snapshot
                 payloadColumnName: "snapshot",
                 manifestColumnName: "manifest",
                 timestampColumnName: "created_at",
-                timeout: sqlConfig.GetTimeSpan("connection-timeout")),
+                serializerIdColumnName: "serializer_id",
+                timeout: sqlConfig.GetTimeSpan("connection-timeout"),
+                defaultSerializer: config.GetString("default-serializer")),
                 Context.System.Serialization);
         }
 

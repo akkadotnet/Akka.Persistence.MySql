@@ -6,69 +6,84 @@ Akka Persistence journal and snapshot store backed by MySql database.
 
 ### Configuration
 
-Both journal and snapshot store share the same configuration keys (however they resides in separate scopes, so they are definied distinctly for either journal or snapshot store):
+Both journal and snapshot store share the same configuration keys (however they resides in separate scopes, so they are defined distinctly for either journal or snapshot store):
 
 Remember that connection string must be provided separately to Journal and Snapshot Store.
 
+Example connection-string:
+
+```hocon
+akka.persistence.journal.mysql.connection-string = "Server=localhost;Port=3306;Database=somedb;Uid=someuser;Pwd=somepassword;"
+akka.persistence.snapshot-store.mysql.connection-string = "Server=localhost;Port=3306;Database=somedb;Uid=someuser;Pwd=somepassword;"
+```
+
+All config options:
+
 ```hocon
 akka.persistence{
-	journal {
-		plugin = "akka.persistence.journal.mysql"
-		mysql {
-			# qualified type name of the MySql persistence journal actor
-			class = "Akka.Persistence.MySql.Journal.MySqlJournal, Akka.Persistence.MySql"
+  journal {
+    plugin = "akka.persistence.journal.mysql"
+    mysql {
+      # qualified type name of the MySql persistence journal actor
+      class = "Akka.Persistence.MySql.Journal.MySqlJournal, Akka.Persistence.MySql"
 
-			# dispatcher used to drive journal actor
-			plugin-dispatcher = "akka.actor.default-dispatcher"
+      # dispatcher used to drive journal actor
+      plugin-dispatcher = "akka.actor.default-dispatcher"
 
-			# connection string used for database access
-			connection-string = ""
+      # connection string used for database access
+      connection-string = ""
 
-			# connection string name for .config file used when no connection string has been provided
-			connection-string-name = ""
+      # connection string name for .config file used when no connection string has been provided
+      connection-string-name = ""
 
-			# default SQL commands timeout
-			connection-timeout = 30s
+      # default MySql commands timeout
+      connection-timeout = 30s
 
-			# MySql table corresponding with persistent journal
-			table-name = event_journal
+      # MySql table corresponding with persistent journal
+      table-name = "event_journal"
 
-			# should corresponding journal table be initialized automatically
-			auto-initialize = off
-			
-			# timestamp provider used for generation of journal entries timestamps
-			timestamp-provider = "Akka.Persistence.Sql.Common.Journal.DefaultTimestampProvider, Akka.Persistence.Sql.Common"
-		
-			# metadata table
-			metadata-table-name = metadata
-		}
-	}
+      # should corresponding journal table be initialized automatically
+      auto-initialize = off
 
-	snapshot-store {
-		plugin = "akka.persistence.snapshot-store.mysql"
-		mysql {
-			# qualified type name of the MySql persistence journal actor
-			class = "Akka.Persistence.MySql.Snapshot.MySqlSnapshotStore, Akka.Persistence.MySql"
+      # timestamp provider used for generation of journal entries timestamps
+      timestamp-provider = "Akka.Persistence.Sql.Common.Journal.DefaultTimestampProvider, Akka.Persistence.Sql.Common"
 
-			# dispatcher used to drive journal actor
-			plugin-dispatcher = ""akka.actor.default-dispatcher""
+      # metadata table
+      metadata-table-name = "metadata"
 
-			# connection string used for database access
-			connection-string = ""
+      # default serializer to use
+      default-serializer = ""
+    }
+  }
 
-			# connection string name for .config file used when no connection string has been provided
-			connection-string-name = ""
+  snapshot-store {
+    plugin = "akka.persistence.snapshot-store.mysql"
+    mysql {
+      # qualified type name of the MySql persistence journal actor
+      class = "Akka.Persistence.MySql.Snapshot.MySqlSnapshotStore, Akka.Persistence.MySql"
 
-			# default SQL commands timeout
-			connection-timeout = 30s
+      # dispatcher used to drive journal actor
+      plugin-dispatcher = "akka.actor.default-dispatcher"
 
-			# MySql table corresponding with persistent journal
-			table-name = snapshot_store
+      # connection string used for database access
+      connection-string = ""
 
-			# should corresponding journal table be initialized automatically
-			auto-initialize = off
-		}
-	}
+      # connection string name for .config file used when no connection string has been provided
+      connection-string-name = ""
+
+      # default MySql commands timeout
+      connection-timeout = 30s
+
+      # MySql table corresponding with persistent journal
+      table-name = "snapshot_store"
+
+      # should corresponding journal table be initialized automatically
+      auto-initialize = off
+
+      # default serializer to use
+      default-serializer = ""
+    }
+  }
 }
 ```
 ### Table Schema
@@ -76,33 +91,95 @@ akka.persistence{
 SQL Server persistence plugin defines a default table schema used for journal, snapshot store and metadate table.
 
 ```SQL
-CREATE TABLE IF NOT EXISTS {your_journal_table_name} (
-    persistence_id VARCHAR(255) NOT NULL,
-    sequence_nr BIGINT NOT NULL,
-    is_deleted BIT NOT NULL,
-    created_at BIGINT NOT NULL,
-    manifest VARCHAR(500) NOT NULL,
-    payload LONGBLOB NOT NULL,
-    tags VARCHAR(100) NULL,
-    PRIMARY KEY (persistence_id, sequence_nr),
-    INDEX {your_journal_table_name}_sequence_nr_idx (sequence_nr),
-    INDEX {your_journal_table_name}_created_at_idx (created_at)
+CREATE TABLE IF NOT EXISTS journal (
+  ordering BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  persistence_id VARCHAR(255) NOT NULL,
+  sequence_nr BIGINT NOT NULL,
+  is_deleted BIT NOT NULL,
+  manifest VARCHAR(500) NOT NULL,
+  created_at BIGINT NOT NULL,
+  payload LONGBLOB NOT NULL,
+  tags VARCHAR(2000) NULL,
+  serializer_id INT,
+  UNIQUE (persistence_id, sequence_nr),
+  INDEX journal_sequence_nr_idx (sequence_nr),
+  INDEX journal_created_at_idx (created_at)
 );
 
-CREATE TABLE IF NOT EXISTS {your_snapshot_table_name} (
-    persistence_id VARCHAR(255) NOT NULL,
-    sequence_nr BIGINT NOT NULL,
-    created_at BIGINT NOT NULL,
-    manifest VARCHAR(500) NOT NULL,
-    snapshot LONGBLOB NOT NULL,
-    PRIMARY KEY (persistence_id, sequence_nr),
-    INDEX {your_snapshot_table_name}_sequence_nr_idx (sequence_nr),
-    INDEX {your_snapshot_table_name}_created_at_idx (created_at)
+CREATE TABLE IF NOT EXISTS snapshot (
+  persistence_id VARCHAR(255) NOT NULL,
+  sequence_nr BIGINT NOT NULL,
+  created_at BIGINT NOT NULL,
+  manifest VARCHAR(255) NOT NULL,
+  snapshot LONGBLOB NOT NULL,
+  serializer_id INT,
+  PRIMARY KEY (persistence_id, sequence_nr),
+  INDEX snapshot_sequence_nr_idx (sequence_nr),
+  INDEX snapshot_created_at_idx (created_at)
 );
 
-CREATE TABLE IF NOT EXISTS {your_metadata_table_name} (
-    persistence_id VARCHAR(255) NOT NULL,
-    sequence_nr BIGINT NOT NULL,
-    PRIMARY KEY (persistence_id, sequence_nr)
+CREATE TABLE IF NOT EXISTS metadata (
+  persistence_id VARCHAR(255) NOT NULL,
+  sequence_nr BIGINT NOT NULL,
+  PRIMARY KEY (persistence_id, sequence_nr)
 );
+```
+
+
+Migration
+
+1.0
+
+CREATE TABLE IF NOT EXISTS journal (
+  persistence_id VARCHAR(255) NOT NULL,
+  sequence_nr BIGINT NOT NULL,
+  is_deleted BIT NOT NULL,
+  manifest VARCHAR(500) NOT NULL,
+  created_at BIGINT NOT NULL,
+  payload BLOB NOT NULL,
+  tags VARCHAR(100) NULL,
+  PRIMARY KEY (persistence_id, sequence_nr),
+  INDEX journal_sequence_nr_idx (sequence_nr),
+  INDEX journal_created_at_idx (created_at)
+);
+
+CREATE TABLE IF NOT EXISTS snapshot (
+  persistence_id VARCHAR(255) NOT NULL,
+  sequence_nr BIGINT NOT NULL,
+  created_at BIGINT NOT NULL,
+  manifest VARCHAR(255) NOT NULL,
+  snapshot BLOB NOT NULL,
+  serializer_id INT,
+  PRIMARY KEY (persistence_id, sequence_nr),
+  INDEX snapshot_sequence_nr_idx (sequence_nr),
+  INDEX snapshot_created_at_idx (created_at)
+);
+
+
+### Migration
+
+All migration scripts should be tested before running in production!
+
+#### From 1.0.0 to 1.1.0
+
+```SQL
+/* Update journal table */
+ALTER TABLE journal drop primary key;
+ALTER TABLE journal ADD COLUMN ordering BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+CREATE UNIQUE INDEX journal_persistence_sequence_nr ON journal (persistence_id, sequence_nr);
+ALTER TABLE journal CHANGE COLUMN tags tags VARCHAR(2000);
+ALTER TABLE journal CHANGE COLUMN payload payload LONGBLOB;
+
+/* Update snapshot table */
+ALTER TABLE snapshot CHANGE COLUMN snapshot snapshot LONGBLOB;
+```
+
+#### From 1.1.0 to 1.3.1
+
+```SQL
+/* Update journal table */
+ALTER TABLE journal ADD COLUMN serializer_id INT;
+
+/* Update snapshot table */
+ALTER TABLE snapshot ADD COLUMN serializer_id INT;
 ```

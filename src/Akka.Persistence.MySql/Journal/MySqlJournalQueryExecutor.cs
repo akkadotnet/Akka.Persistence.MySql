@@ -28,6 +28,7 @@ namespace Akka.Persistence.MySql.Journal
                     {configuration.TimestampColumnName} BIGINT NOT NULL,
                     {configuration.PayloadColumnName} LONGBLOB NOT NULL,
                     {configuration.TagsColumnName} VARCHAR(2000) NULL,
+                    {configuration.SerializerIdColumnName} INT,
                     UNIQUE ({configuration.PersistenceIdColumnName}, {configuration.SequenceNrColumnName}),
                     INDEX {configuration.JournalEventsTableName}_sequence_nr_idx ({configuration.SequenceNrColumnName}),
                     INDEX {configuration.JournalEventsTableName}_created_at_idx ({configuration.TimestampColumnName})

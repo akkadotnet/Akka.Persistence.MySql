@@ -46,7 +46,7 @@ namespace Akka.Persistence.MySql
         /// <returns></returns>
         public static Config DefaultConfiguration()
         {
-            return ConfigurationFactory.FromResource<MySqlPersistence>("Akka.Persistence.MySql.mysql.conf");
+            return ConfigurationFactory.FromResource<MySqlPersistence>("Akka.Persistence.MySql.reference.conf");
         }
 
         public static MySqlPersistence Get(ActorSystem system)

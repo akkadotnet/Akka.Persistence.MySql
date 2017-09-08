@@ -7,7 +7,9 @@
 
 using System.Configuration;
 using Akka.Configuration;
-using Akka.Persistence.Sql.TestKit;
+using Akka.Persistence.Query;
+using Akka.Persistence.Query.Sql;
+using Akka.Persistence.TCK.Query;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -27,7 +29,7 @@ namespace Akka.Persistence.MySql.Tests.Query
                 akka.persistence.journal.plugin = ""akka.persistence.journal.mysql""
                 akka.persistence.journal.mysql {{
                     event-adapters {{
-                      color-tagger  = ""Akka.Persistence.Sql.TestKit.ColorTagger, Akka.Persistence.Sql.TestKit""
+                      color-tagger  = ""Akka.Persistence.TCK.Query.ColorFruitTagger, Akka.Persistence.TCK""
                     }}
                     event-adapter-bindings = {{
                       ""System.String"" = color-tagger
@@ -42,9 +44,10 @@ namespace Akka.Persistence.MySql.Tests.Query
                 akka.test.single-expect-default = 10s");
         }
 
-        public MySqlEventsByTagSpec(ITestOutputHelper output) : base(SpecConfig, output)
+        public MySqlEventsByTagSpec(ITestOutputHelper output) : base(SpecConfig, nameof(MySqlEventsByTagSpec), output)
         {
             DbUtils.Initialize();
+            ReadJournal = Sys.ReadJournalFor<SqlReadJournal>(SqlReadJournal.Identifier);
         }
 
         protected override void Dispose(bool disposing)
