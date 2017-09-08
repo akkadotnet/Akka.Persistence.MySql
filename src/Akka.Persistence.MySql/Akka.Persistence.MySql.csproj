@@ -3,7 +3,7 @@
     <PropertyGroup>
       <AssemblyTitle>Akka.Persistence.MySql</AssemblyTitle>
       <Description>Akka.NET Persistence journal and snapshot store backed by MySql.</Description>
-      <TargetFrameworks>net452;netstandard1.6</TargetFrameworks>
+      <TargetFrameworks>net45</TargetFrameworks>
       <PackageTags>akka;actors;actor model;Akka;concurrency;mysql</PackageTags>
       <Copyright>Copyright © 2016-2017 Akka.NET Contrib</Copyright>
       <Authors>Akka.NET Contrib</Authors>
@@ -13,7 +13,6 @@
       <PackageProjectUrl>https://github.com/AkkaNetContrib/Akka.Persistence.MySql</PackageProjectUrl>
       <PackageLicenseUrl>https://github.com/AkkaNetContrib/Akka.Persistence.MySql/blob/master/LICENSE</PackageLicenseUrl>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
-      <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,7 +23,7 @@
       <PackageReference Include="Akka" Version="1.3.1" />
       <PackageReference Include="Akka.Persistence" Version="1.3.1" />
       <PackageReference Include="Akka.Persistence.Sql.Common" Version="1.3.1" />
-      <PackageReference Include="MySql.Data" Version="8.0.8-dmr" />
+      <PackageReference Include="MySql.Data" Version="6.9.9" />
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
