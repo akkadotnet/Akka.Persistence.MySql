@@ -129,11 +129,12 @@ CREATE TABLE IF NOT EXISTS metadata (
 
 All migration scripts should be tested before running in production!
 
-#### From 1.0.0 to 1.1.0
+#### From 1.0.0-beta to 1.0.0-beta2
 
 ```SQL
 /* Update journal table */
 ALTER TABLE journal drop primary key;
+ALTER TABLE journal ADD COLUMN serializer_id INT;
 ALTER TABLE journal ADD COLUMN ordering BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY;
 CREATE UNIQUE INDEX journal_persistence_sequence_nr ON journal (persistence_id, sequence_nr);
 ALTER TABLE journal CHANGE COLUMN tags tags VARCHAR(2000);
@@ -141,14 +142,5 @@ ALTER TABLE journal CHANGE COLUMN payload payload LONGBLOB;
 
 /* Update snapshot table */
 ALTER TABLE snapshot CHANGE COLUMN snapshot snapshot LONGBLOB;
-```
-
-#### From 1.1.0 to 1.3.1
-
-```SQL
-/* Update journal table */
-ALTER TABLE journal ADD COLUMN serializer_id INT;
-
-/* Update snapshot table */
 ALTER TABLE snapshot ADD COLUMN serializer_id INT;
 ```
