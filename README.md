@@ -125,37 +125,6 @@ CREATE TABLE IF NOT EXISTS metadata (
 );
 ```
 
-
-Migration
-
-1.0
-
-CREATE TABLE IF NOT EXISTS journal (
-  persistence_id VARCHAR(255) NOT NULL,
-  sequence_nr BIGINT NOT NULL,
-  is_deleted BIT NOT NULL,
-  manifest VARCHAR(500) NOT NULL,
-  created_at BIGINT NOT NULL,
-  payload BLOB NOT NULL,
-  tags VARCHAR(100) NULL,
-  PRIMARY KEY (persistence_id, sequence_nr),
-  INDEX journal_sequence_nr_idx (sequence_nr),
-  INDEX journal_created_at_idx (created_at)
-);
-
-CREATE TABLE IF NOT EXISTS snapshot (
-  persistence_id VARCHAR(255) NOT NULL,
-  sequence_nr BIGINT NOT NULL,
-  created_at BIGINT NOT NULL,
-  manifest VARCHAR(255) NOT NULL,
-  snapshot BLOB NOT NULL,
-  serializer_id INT,
-  PRIMARY KEY (persistence_id, sequence_nr),
-  INDEX snapshot_sequence_nr_idx (sequence_nr),
-  INDEX snapshot_created_at_idx (created_at)
-);
-
-
 ### Migration
 
 All migration scripts should be tested before running in production!
