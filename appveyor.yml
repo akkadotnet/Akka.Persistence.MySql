@@ -1,13 +1,57 @@
-version: '{build}'
-skip_tags: true
-image: Visual Studio 2015
-configuration: Release
-build_script:
-- ps: $env:MYSQL_PWD="Password12!"
-- ps: $cmd = '"C:\Program Files\MySql\MySQL Server 5.7\bin\mysql" -e "create database akka_persistence_tests;" --user=root'
-- ps: iex "& $cmd"
-- cmd: build.cmd Build
-test_script:
-- cmd: build.cmd RunTests
-services:
+# configuration for "master" branch
+- 
+  branches:
+    only:
+      - master
+  image: Visual Studio 2017
+  platform: Any CPU
+  configuration: Release
+  build_script:
+  - ps: $env:MYSQL_PWD="Password12!"
+  - ps: $cmd = '"C:\Program Files\MySql\MySQL Server 5.7\bin\mysql" -e "create database akka_persistence_tests;" --user=root'
+  - ps: iex "& $cmd"
+  - ps: ./build.ps1 Build
+  test_script:
+  - ps: ./build.ps1 RunTests
+  - ps: ./build.ps1 CreateNuget
+  services:
   - mysql
+  artifacts:
+  - path: build/nuget/*.nupkg
+    name: nuget
+  deploy:
+    provider: NuGet
+    api_key:
+      secure: e7KuwYUTHtAEEVbxsIkRZR2052wcsY3DYJBGOpmGoIO2bHJyucVr7r50/TdXIQgw
+    skip_symbols: false
+    artifact: /.*\.nupkg/
+
+# configuration for all branches starting from "dev"
+- 
+  branches:
+    only:
+      - dev
+  image: Visual Studio 2017
+  platform: Any CPU
+  configuration: Release
+  build_script:
+  - ps: $env:MYSQL_PWD="Password12!"
+  - ps: $cmd = '"C:\Program Files\MySql\MySQL Server 5.7\bin\mysql" -e "create database akka_persistence_tests;" --user=root'
+  - ps: iex "& $cmd"
+  - ps: ./build.ps1 Build
+  test_script:
+  - ps: ./build.ps1 RunTests
+  - ps: ./build.ps1 CreateNuget
+  services:
+  - mysql
+  artifacts:
+  - path: build/nuget/*.nupkg
+    name: nuget
+  deploy:
+    provider: NuGet
+    server: https://www.myget.org/F/akkadotnet-contrib/api/v2/package
+    api_key:
+      secure: yoMgcchmDuXbvT90bgrUTOUNYgAId6QI0nofIOtnlfWzMjDEWfOqNqqTGPY+02M+
+    skip_symbols: false
+    symbol_server: https://www.myget.org/F/akkadotnet-contrib/symbols/api/v2/package
+    artifact: /.*\.nupkg/
