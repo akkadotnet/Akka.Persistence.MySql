@@ -8,7 +8,6 @@
       <Copyright>Copyright © 2016-2017 Akka.NET Contrib</Copyright>
       <Authors>Akka.NET Contrib</Authors>
       <VersionPrefix>1.0.0</VersionPrefix>
-      <VersionSuffix>beta2</VersionSuffix>
       <PackageIconUrl>http://getakka.net/images/akkalogo.png</PackageIconUrl>
       <PackageProjectUrl>https://github.com/AkkaNetContrib/Akka.Persistence.MySql</PackageProjectUrl>
       <PackageLicenseUrl>https://github.com/AkkaNetContrib/Akka.Persistence.MySql/blob/master/LICENSE</PackageLicenseUrl>
