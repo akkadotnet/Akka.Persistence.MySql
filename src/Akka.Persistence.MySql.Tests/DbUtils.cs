@@ -11,24 +11,28 @@ namespace Akka.Persistence.MySql.Tests
 {
     public static class DbUtils
     {
-        public static void Initialize()
+        private static MySqlFixture Fixture;
+        
+        public static void Initialize(MySqlFixture fixture)
         {
-            var connectionString = "Server=127.0.0.1;Port=3306;Database=akka_persistence_tests;User Id=root;Password=Password12!";
-            var connectionBuilder = new MySqlConnectionStringBuilder(connectionString);
+            Fixture = fixture;
+            //var connectionString = "Server=127.0.0.1;Port=3306;Database=akka_persistence_tests;User Id=root;Password=Password12!";
+            // var connectionBuilder = new MySqlConnectionStringBuilder(fixture.ConnectionString);
 
             //connect to mysql database to create a new database
-            var databaseName = connectionBuilder.Database;
-            connectionBuilder.Database = databaseName;
-            connectionString = connectionBuilder.ToString();
+            // var databaseName = connectionBuilder.Database;
+            // connectionBuilder.Database = databaseName;
+            // connectionString = connectionBuilder.ToString();
 
-            using (var conn = new MySqlConnection(connectionString))
+            using (var conn = new MySqlConnection(fixture.ConnectionString))
             {
                 conn.Open();
 
                 bool dbExists;
                 using (var cmd = new MySqlCommand())
                 {
-                    cmd.CommandText = string.Format(@"SELECT true FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{0}'", databaseName);
+                    cmd.CommandText =
+                        $@"SELECT true FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{MySqlFixture.DatabaseName}'";
                     cmd.Connection = conn;
 
                     var result = cmd.ExecuteScalar();
@@ -41,16 +45,16 @@ namespace Akka.Persistence.MySql.Tests
                 }
                 else
                 {
-                    DoCreate(conn, databaseName);
+                    DoCreate(conn, MySqlFixture.DatabaseName);
                 }
             }
         }
 
         public static void Clean()
         {
-            var connectionString = "Server=127.0.0.1;Port=3306;Database=akka_persistence_tests;User Id=root;Password=Password12!";
+            //var connectionString = "Server=127.0.0.1;Port=3306;Database=akka_persistence_tests;User Id=root;Password=Password12!";
 
-            using (var conn = new MySqlConnection(connectionString))
+            using (var conn = new MySqlConnection(Fixture.ConnectionString))
             {
                 conn.Open();
                 DropTables(conn);
