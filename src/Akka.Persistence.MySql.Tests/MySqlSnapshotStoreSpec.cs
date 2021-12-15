@@ -14,33 +14,29 @@ namespace Akka.Persistence.MySql.Tests
     [Collection("MySqlSpec")]
     public class MySqlSnapshotStoreSpec : SnapshotStoreSpec
     {
-        private static readonly Config SpecConfig;
-
-        static MySqlSnapshotStoreSpec()
+        private static Config Config(MySqlFixture fixture)
         {
-            var connectionString = "Server=127.0.0.1;Port=3306;Database=akka_persistence_tests;User Id=root;Password=Password12!";
-
-            SpecConfig = ConfigurationFactory.ParseString(@"
+            var config = ConfigurationFactory.ParseString($@"
                 akka.test.single-expect-default = 3s
-                akka.persistence {
+                akka.persistence {{
                     publish-plugin-commands = on
-                    snapshot-store {
+                    snapshot-store {{
                         plugin = ""akka.persistence.snapshot-store.mysql""
-                        mysql {
+                        mysql {{
                             class = ""Akka.Persistence.MySql.Snapshot.MySqlSnapshotStore, Akka.Persistence.MySql""
                             plugin-dispatcher = ""akka.actor.default-dispatcher""
                             table-name = snapshot_store
                             auto-initialize = on
-                            connection-string = """ + connectionString + @"""
-                        }
-                    }
-                }");
-
-            DbUtils.Initialize();
+                            connection-string = ""{fixture.ConnectionString}""
+                        }}
+                    }}
+                }}");
+            DbUtils.Initialize(fixture);
+            return config;
         }
 
-        public MySqlSnapshotStoreSpec(ITestOutputHelper output)
-            : base(SpecConfig, typeof(MySqlSnapshotStoreSpec).Name, output)
+        public MySqlSnapshotStoreSpec(ITestOutputHelper output, MySqlFixture fixture)
+            : base(Config(fixture), nameof(MySqlSnapshotStoreSpec), output)
         {
             MySqlPersistence.Get(Sys);
 

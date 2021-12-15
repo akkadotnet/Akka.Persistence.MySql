@@ -1,9 +1,0 @@
-version: '3.2'
-services:
-  mysql:
-    image: mysql:5.7.19
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=Password12!
-      - MYSQL_DATABASE=akka_persistence_tests

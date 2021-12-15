@@ -4,10 +4,13 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+using System;
 using Akka.Configuration;
 using Akka.Persistence.Query;
 using Akka.Persistence.Query.Sql;
 using Akka.Persistence.TCK.Query;
+using Akka.Streams.TestKit;
+using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,35 +19,45 @@ namespace Akka.Persistence.MySql.Tests.Query
     [Collection("MySqlSpec")]
     public class MySqlEventsByTagSpec : EventsByTagSpec
     {
-        private static readonly Config SpecConfig;
-
-        static MySqlEventsByTagSpec()
+        private static Config Config(MySqlFixture fixture)
         {
-            var connectionString = "Server=127.0.0.1;Port=3306;Database=akka_persistence_tests;User Id=root;Password=Password12!";
-
-            SpecConfig = ConfigurationFactory.ParseString($@"
+            var config = ConfigurationFactory.ParseString($@"
                 akka.loglevel = INFO
-                akka.persistence.journal.plugin = ""akka.persistence.journal.mysql""
-                akka.persistence.journal.mysql {{
-                    event-adapters {{
-                      color-tagger  = ""Akka.Persistence.TCK.Query.ColorFruitTagger, Akka.Persistence.TCK""
+                akka.persistence {{
+                    journal.plugin = ""akka.persistence.journal.mysql""
+                    journal.mysql {{
+                        event-adapters {{
+                            color-tagger  = ""Akka.Persistence.TCK.Query.ColorFruitTagger, Akka.Persistence.TCK""
+                        }}
+                        event-adapter-bindings = {{
+                            ""System.String"" = color-tagger
+                        }}
+                        class = ""Akka.Persistence.MySql.Journal.MySqlJournal, Akka.Persistence.MySql""
+                        plugin-dispatcher = ""akka.actor.default-dispatcher""
+                        table-name = event_journal
+                        auto-initialize = on
+                        connection-string = ""{fixture.ConnectionString}""
+                        refresh-interval = 1s
                     }}
-                    event-adapter-bindings = {{
-                      ""System.String"" = color-tagger
+                    snapshot-store {{
+                        plugin = ""akka.persistence.snapshot-store.mysql""
+                        mysql {{
+                            class = ""Akka.Persistence.MySql.Snapshot.MySqlSnapshotStore, Akka.Persistence.MySql""
+                            plugin-dispatcher = ""akka.actor.default-dispatcher""
+                            table-name = snapshot_store
+                            auto-initialize = on
+                            connection-string = ""{fixture.ConnectionString}""
+                        }}
                     }}
-                    class = ""Akka.Persistence.MySql.Journal.MySqlJournal, Akka.Persistence.MySql""
-                    plugin-dispatcher = ""akka.actor.default-dispatcher""
-                    table-name = event_journal
-                    auto-initialize = on
-                    connection-string = ""{connectionString}""
-                    refresh-interval = 1s
                 }}
                 akka.test.single-expect-default = 10s");
+            DbUtils.Initialize(fixture);
+            return config;
         }
 
-        public MySqlEventsByTagSpec(ITestOutputHelper output) : base(SpecConfig, nameof(MySqlEventsByTagSpec), output)
+        public MySqlEventsByTagSpec(ITestOutputHelper output, MySqlFixture fixture) 
+            : base(Config(fixture), nameof(MySqlEventsByTagSpec), output)
         {
-            DbUtils.Initialize();
             ReadJournal = Sys.ReadJournalFor<SqlReadJournal>(SqlReadJournal.Identifier);
         }
 
