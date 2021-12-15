@@ -52,7 +52,7 @@ namespace Akka.Persistence.MySql.Tests
         {
             var sysInfo = await Client.System.GetSystemInfoAsync();
             if (sysInfo.OSType.ToLowerInvariant() != "linux")
-                throw new TestClassException("MSSQL docker image only available for linux containers");
+                throw new TestClassException("MySQL docker image only available for linux containers");
             
             var images = await Client.Images.ListImagesAsync(new ImagesListParameters
             {
