@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <Copyright>Copyright © 2016-2021 Akka.NET Contrib</Copyright>
+        <Copyright>Copyright ï¿½ 2016-2021 Akka.NET Contrib</Copyright>
         <Authors>Akka.NET Contrib</Authors>
         <VersionPrefix>1.0.0</VersionPrefix>
         <PackageReleaseNotes>Placeholder for nightlies**</PackageReleaseNotes>
@@ -17,7 +17,7 @@
         <NetCoreTestVersion>netcoreapp3.1</NetCoreTestVersion>
 
         <!-- Nuget package versions -->
-        <AkkaVersion>1.4.29</AkkaVersion>
+        <AkkaVersion>1.4.31</AkkaVersion>
         <MicrosoftSdkVersion>3.1.22</MicrosoftSdkVersion>
 
         <!-- Unit test Nuget package versions -->
