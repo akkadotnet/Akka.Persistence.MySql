@@ -148,12 +148,11 @@ Target "Nuget" DoNothing
 "Build" ==> "RunTests"
 
 // nuget dependencies
-"Clean" ==> "RestorePackages" ==> "Build" ==> "CreateNuget"
+"Clean" ==> "RestorePackages" ==> "Build" ==> "CreateNuget" ==> "Nuget"
 
 // all
 "BuildRelease" ==> "All"
 "RunTests" ==> "All"
-"NBench" ==> "All"
 "Nuget" ==> "All"
 
 RunTargetOrDefault "Help"
