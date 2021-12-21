@@ -18,9 +18,9 @@ variables:
   - name: githubConnectionName
     value: AkkaDotNet_Releases
   - name: projectName
-    value: Akka.Persistence.SqlServer
+    value: Akka.Persistence.MySql
   - name: githubRepositoryName
-    value: akkadotnet/Akka.Persistence.SqlServer
+    value: akkadotnet/Akka.Persistence.MySql
 steps:
 - task: BatchScript@1
   displayName: 'FAKE Build'
