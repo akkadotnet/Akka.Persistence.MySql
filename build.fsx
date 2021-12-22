@@ -12,6 +12,11 @@ open Fake.DocFxHelper
 // Variables
 let configuration = "Release"
 
+// Metadata used when signing packages and DLLs
+let signingName = "Akka.Persistence.MySql"
+let signingDescription = "Akka.Persistence support for MySql"
+let signingUrl = "https://github.com/akkadotnet/Akka.Persistence.MySql"
+
 // Read release notes and version
 let solutionFile = FindFirstMatchingFile "*.sln" (__SOURCE_DIRECTORY__ @@ "src") // dynamically look up the solution
 let buildNumber = environVarOrDefault "BUILD_NUMBER" "0"
@@ -38,6 +43,11 @@ let output = __SOURCE_DIRECTORY__  @@ "build"
 let outputTests = output @@ "tests"
 let outputBinaries = output @@ "binaries"
 let outputNuGet = output @@ "nuget"
+
+// Configuration values for tests
+let testNetFrameworkVersion = "net471"
+let testNetCoreVersion = "netcoreapp3.1"
+let testNetVersion = "net5.0"
 
 Target "Clean" (fun _ ->
     CleanDir output
@@ -95,8 +105,8 @@ Target "RunTests" (fun _ ->
     let runSingleProject project =
         let arguments =
             match (hasTeamCity) with
-            | true -> (sprintf "test -c Release --no-build --logger:trx --logger:\"console;verbosity=normal\" --results-directory %s -- -parallel none -teamcity" (outputTests))
-            | false -> (sprintf "test -c Release --no-build --logger:trx --logger:\"console;verbosity=normal\" --results-directory %s -- -parallel none" (outputTests))
+            | true -> (sprintf "test -c Release --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s --results-directory %s -- -parallel none -teamcity" testNetFrameworkVersion outputTests)
+            | false -> (sprintf "test -c Release --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s --results-directory %s -- -parallel none" testNetFrameworkVersion outputTests)
 
         let result = ExecProcess(fun info ->
             info.FileName <- "dotnet"
@@ -105,20 +115,94 @@ Target "RunTests" (fun _ ->
         
         ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result  
 
+    CreateDir outputTests
     projects |> Seq.iter (log)
     projects |> Seq.iter (runSingleProject)
+)
+
+Target "RunTestsNetCore" (fun _ ->
+    let projects = 
+        match (isWindows) with 
+        | true -> !! "./src/**/*.Tests.csproj"
+        | _ -> !! "./src/**/*.Tests.csproj" // if you need to filter specs for Linux vs. Windows, do it here
+
+    let runSingleProject project =
+        let arguments =
+            match (hasTeamCity) with
+            | true -> (sprintf "test -c Release --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s --results-directory %s -- -parallel none -teamcity" testNetCoreVersion outputTests)
+            | false -> (sprintf "test -c Release --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s --results-directory %s -- -parallel none" testNetCoreVersion outputTests)
+
+        let result = ExecProcess(fun info ->
+            info.FileName <- "dotnet"
+            info.WorkingDirectory <- (Directory.GetParent project).FullName
+            info.Arguments <- arguments) (TimeSpan.FromMinutes 30.0) 
+        
+        ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result  
+
+    CreateDir outputTests
+    projects |> Seq.iter (log)
+    projects |> Seq.iter (runSingleProject)
+)
+
+//--------------------------------------------------------------------------------
+// Code signing targets
+//--------------------------------------------------------------------------------
+Target "SignPackages" (fun _ ->
+    let canSign = hasBuildParam "SignClientSecret" && hasBuildParam "SignClientUser"
+    if(canSign) then
+        log "Signing information is available."
+        
+        let assemblies = !! (outputNuGet @@ "*.*upkg")
+
+        let signPath =
+            let globalTool = tryFindFileOnPath "SignClient.exe"
+            match globalTool with
+                | Some t -> t
+                | None -> if isWindows then findToolInSubPath "SignClient.exe" "tools/signclient"
+                          elif isMacOS then findToolInSubPath "SignClient" "tools/signclient"
+                          else findToolInSubPath "SignClient" "tools/signclient"
+
+        let signAssembly assembly =
+            let args = StringBuilder()
+                    |> append "sign"
+                    |> append "--config"
+                    |> append (__SOURCE_DIRECTORY__ @@ "appsettings.json") 
+                    |> append "-i"
+                    |> append assembly
+                    |> append "-r"
+                    |> append (getBuildParam "SignClientUser")
+                    |> append "-s"
+                    |> append (getBuildParam "SignClientSecret")
+                    |> append "-n"
+                    |> append signingName
+                    |> append "-d"
+                    |> append signingDescription
+                    |> append "-u"
+                    |> append signingUrl
+                    |> toText
+
+            let result = ExecProcess(fun info -> 
+                info.FileName <- signPath
+                info.WorkingDirectory <- __SOURCE_DIRECTORY__
+                info.Arguments <- args) (System.TimeSpan.FromMinutes 5.0) (* Reasonably long-running task. *)
+            if result <> 0 then failwithf "SignClient failed.%s" args
+
+        assemblies |> Seq.iter (signAssembly)
+    else
+        log "SignClientSecret not available. Skipping signing"
 )
 
 //--------------------------------------------------------------------------------
 // Nuget targets 
 //--------------------------------------------------------------------------------
 
-Target "CreateNuget" (fun _ ->
-    let envBuildNumber = environVarOrDefault "APPVEYOR_BUILD_NUMBER" "0"
-    let branch =  environVarOrDefault "APPVEYOR_REPO_BRANCH" ""
-    let versionSuffix = if branch.Equals("dev") then (sprintf "beta%s" envBuildNumber) else ""
-
-    let projects = !! "src/**/Akka.Persistence.MySql.csproj"
+let overrideVersionSuffix (project:string) =
+    match project with
+    | _ -> versionSuffix // add additional matches to publish different versions for different projects in solution
+Target "CreateNuget" (fun _ ->    
+    let projects = !! "src/**/*.csproj" 
+                   -- "src/**/*Tests.csproj" // Don't publish unit tests
+                   -- "src/**/*Tests*.csproj"
 
     let runSingleProject project =
         DotNetCli.Pack
@@ -126,12 +210,75 @@ Target "CreateNuget" (fun _ ->
                 { p with
                     Project = project
                     Configuration = configuration
-                    AdditionalArgs = ["--include-symbols"]
-                    VersionSuffix = versionSuffix
+                    AdditionalArgs = ["--include-symbols --no-build"]
+                    VersionSuffix = overrideVersionSuffix project
                     OutputPath = outputNuGet })
 
     projects |> Seq.iter (runSingleProject)
 )
+
+Target "PublishNuget" (fun _ ->
+    let projects = !! "./bin/nuget/*.nupkg" -- "./bin/nuget/*.symbols.nupkg"
+    let apiKey = getBuildParamOrDefault "nugetkey" ""
+    let source = getBuildParamOrDefault "nugetpublishurl" ""
+    let symbolSource = getBuildParamOrDefault "symbolspublishurl" ""
+    let shouldPublishSymbolsPackages = not (symbolSource = "")
+
+    if (not (source = "") && not (apiKey = "") && shouldPublishSymbolsPackages) then
+        let runSingleProject project =
+            DotNetCli.RunCommand
+                (fun p -> 
+                    { p with 
+                        TimeOut = TimeSpan.FromMinutes 10. })
+                (sprintf "nuget push %s --api-key %s --source %s --symbol-source %s" project apiKey source symbolSource)
+
+        projects |> Seq.iter (runSingleProject)
+    else if (not (source = "") && not (apiKey = "") && not shouldPublishSymbolsPackages) then
+        let runSingleProject project =
+            DotNetCli.RunCommand
+                (fun p -> 
+                    { p with 
+                        TimeOut = TimeSpan.FromMinutes 10. })
+                (sprintf "nuget push %s --api-key %s --source %s" project apiKey source)
+
+        projects |> Seq.iter (runSingleProject)
+)
+
+//--------------------------------------------------------------------------------
+// Cleanup
+//--------------------------------------------------------------------------------
+
+FinalTarget "KillCreatedProcesses" (fun _ ->
+    log "Shutting down dotnet build-server"
+    let result = ExecProcess(fun info -> 
+            info.FileName <- "dotnet"
+            info.WorkingDirectory <- __SOURCE_DIRECTORY__
+            info.Arguments <- "build-server shutdown") (System.TimeSpan.FromMinutes 2.0)
+    if result <> 0 then failwithf "dotnet build-server shutdown failed"
+)
+
+//--------------------------------------------------------------------------------
+// Help 
+//--------------------------------------------------------------------------------
+
+Target "Help" <| fun _ ->
+    List.iter printfn [
+      "usage:"
+      "./build.ps1 [target]"
+      ""
+      " Targets for building:"
+      " * Build           Builds"
+      " * Nuget           Create and optionally publish nugets packages"
+      " * SignPackages    Signs all NuGet packages, provided that the following arguments are passed into the script: SignClientSecret={secret} and SignClientUser={username}"
+      " * RunTests        Runs Net Framework tests"
+      " * RunTestsNetCore Runs Net Core tests"
+      " * RunTestsNet     Runs Net 5 tests"
+      " * All             Builds, run tests, creates and optionally publish nuget packages"
+      " * DocFx           Creates a DocFx-based website for this solution"
+      ""
+      " Other Targets"
+      " * Help            Display this help" 
+      ""]
 
 //--------------------------------------------------------------------------------
 //  Target dependencies
@@ -140,20 +287,24 @@ Target "CreateNuget" (fun _ ->
 Target "BuildRelease" DoNothing
 Target "All" DoNothing
 Target "Nuget" DoNothing
+Target "RunTestsFull" DoNothing
+Target "RunTestsNetCoreFull" DoNothing
 
 // build dependencies
 "Clean" ==> "RestorePackages" ==> "Build" ==> "BuildRelease"
 
 // tests dependencies
 "Build" ==> "RunTests"
+"Build" ==> "RunTestsNetCore"
 
 // nuget dependencies
-"Clean" ==> "RestorePackages" ==> "Build" ==> "CreateNuget"
+"Clean" ==> "RestorePackages" ==> "Build" ==> "CreateNuget" 
+"CreateNuget" ==> "PublishNuget" ==> "Nuget"
 
 // all
 "BuildRelease" ==> "All"
 "RunTests" ==> "All"
-"NBench" ==> "All"
+"RunTestsNetCore" ==> "All"
 "Nuget" ==> "All"
 
 RunTargetOrDefault "Help"
