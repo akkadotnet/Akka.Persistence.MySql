@@ -16,13 +16,9 @@ namespace Akka.Persistence.MySql.Tests.Query
     [Collection("MySqlSpec")]
     public class MySqlEventsByPersistenceIdSpec : EventsByPersistenceIdSpec
     {
-        private static readonly Config SpecConfig;
-
-        static MySqlEventsByPersistenceIdSpec()
+        private static Config Config(MySqlFixture fixture)
         {
-            var connectionString = "Server=127.0.0.1;Port=3306;Database=akka_persistence_tests;User Id=root;Password=Password12!";
-
-            SpecConfig = ConfigurationFactory.ParseString($@"
+            var config = ConfigurationFactory.ParseString($@"
                 akka.loglevel = INFO
                 akka.persistence.journal.plugin = ""akka.persistence.journal.mysql""
                 akka.persistence.journal.mysql {{
@@ -30,15 +26,17 @@ namespace Akka.Persistence.MySql.Tests.Query
                     plugin-dispatcher = ""akka.actor.default-dispatcher""
                     table-name = event_journal
                     auto-initialize = on
-                    connection-string = ""{connectionString}""
+                    connection-string = ""{fixture.ConnectionString}""
                     refresh-interval = 1s
                 }}
                 akka.test.single-expect-default = 10s");
+            DbUtils.Initialize(fixture);
+            return config;
         }
 
-        public MySqlEventsByPersistenceIdSpec(ITestOutputHelper output) : base(SpecConfig, nameof(MySqlEventsByPersistenceIdSpec), output)
+        public MySqlEventsByPersistenceIdSpec(ITestOutputHelper output, MySqlFixture fixture) 
+            : base(Config(fixture), nameof(MySqlEventsByPersistenceIdSpec), output)
         {
-            DbUtils.Initialize();
             ReadJournal = Sys.ReadJournalFor<SqlReadJournal>(SqlReadJournal.Identifier);
         }
 

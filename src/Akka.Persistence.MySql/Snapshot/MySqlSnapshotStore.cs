@@ -31,7 +31,8 @@ namespace Akka.Persistence.MySql.Snapshot
                 timestampColumnName: "created_at",
                 serializerIdColumnName: "serializer_id",
                 timeout: sqlConfig.GetTimeSpan("connection-timeout"),
-                defaultSerializer: config.GetString("default-serializer")),
+                defaultSerializer: config.GetString("default-serializer"), 
+                useSequentialAccess: config.GetBoolean("sequential-access")),
                 Context.System.Serialization);
         }
 

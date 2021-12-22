@@ -1,0 +1,31 @@
+# Pull request validation for Linux against the `dev` and `master` branches
+# See https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema for reference
+trigger:
+  branches:
+    include:
+      - dev
+      - master
+
+name: $(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
+
+pr:
+  autoCancel: true # indicates whether additional pushes to a PR should cancel in-progress runs for the same PR. Defaults to true
+  branches:
+    include: [ dev, master ] # branch names which will trigger a build
+
+jobs:
+  # Windows testing is disabled, MySql linux container can not run in windows docker.
+#  - template: azure-pipeline.template.yaml
+#    parameters:
+#      name: 'windows_pr'
+#      displayName: 'Windows PR Validation'
+#      vmImage: 'windows-2019'
+#      scriptFileName: build.cmd
+#      scriptArgs: all
+
+- template: azure-pipeline.template.yaml
+  parameters:
+    name: Ubuntu
+    vmImage: 'ubuntu-20.04'
+    scriptFileName: ./build.sh
+    scriptArgs: runTestsNetCore
