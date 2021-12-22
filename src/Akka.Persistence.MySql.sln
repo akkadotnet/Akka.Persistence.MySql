@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Akka.Persistence.MySql", "Akka.Persistence.MySql\Akka.Persistence.MySql.csproj", "{4B89227B-5AD1-4061-816F-570067C3727F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Akka.Persistence.MySql", "Akka.Persistence.MySql\Akka.Persistence.MySql.csproj", "{4B89227B-5AD1-4061-816F-570067C3727F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Akka.Persistence.MySql.Tests", "Akka.Persistence.MySql.Tests\Akka.Persistence.MySql.Tests.csproj", "{2D1812FD-70C0-43EE-9C25-3980E41F30E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Akka.Persistence.MySql.Tests", "Akka.Persistence.MySql.Tests\Akka.Persistence.MySql.Tests.csproj", "{2D1812FD-70C0-43EE-9C25-3980E41F30E1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{62992F6A-6113-4C82-8A5C-ADE7A83C47B6}"
 	ProjectSection(SolutionItems) = preProject
@@ -25,6 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F945729D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EEDB424A-4F28-4171-99D1-08C8DA880BE6}"
 	ProjectSection(SolutionItems) = preProject
+		common.props = common.props
 		..\README.md = ..\README.md
 		..\RELEASE_NOTES.md = ..\RELEASE_NOTES.md
 	EndProjectSection
@@ -46,5 +47,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4C15D702-DBF7-4E33-87CB-18BF8DC98253}
 	EndGlobalSection
 EndGlobal
