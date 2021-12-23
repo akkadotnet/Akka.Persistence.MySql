@@ -9,7 +9,8 @@ open Fake
 open Fake.DotNetCli
 open Fake.DocFxHelper
 
-// Variables
+// Information about the project for Nuget and Assembly info files
+let product = "Akka.Persistence.MySql"
 let configuration = "Release"
 
 // Metadata used when signing packages and DLLs
@@ -39,9 +40,10 @@ let versionSuffix =
     | str -> str
 
 // Directories
-let output = __SOURCE_DIRECTORY__  @@ "build"
-let outputTests = output @@ "tests"
-let outputBinaries = output @@ "binaries"
+let toolsDir = __SOURCE_DIRECTORY__ @@ "tools"
+let output = __SOURCE_DIRECTORY__  @@ "bin"
+let outputTests = __SOURCE_DIRECTORY__ @@ "TestResults"
+let outputPerfTests = __SOURCE_DIRECTORY__ @@ "PerfResults"
 let outputNuGet = output @@ "nuget"
 
 // Configuration values for tests
@@ -52,7 +54,7 @@ let testNetVersion = "net5.0"
 Target "Clean" (fun _ ->
     CleanDir output
     CleanDir outputTests
-    CleanDir outputBinaries
+    CleanDir outputPerfTests
     CleanDir outputNuGet
 
     CleanDirs !! "./**/bin"
@@ -143,6 +145,28 @@ Target "RunTestsNetCore" (fun _ ->
     projects |> Seq.iter (log)
     projects |> Seq.iter (runSingleProject)
 )
+
+Target "NBench" <| fun _ ->
+    let projects = 
+        match (isWindows) with 
+        | true -> !! "./src/**/*.Tests.Performance.csproj"
+        | _ -> !! "./src/**/*.Tests.Performance.csproj" // if you need to filter specs for Linux vs. Windows, do it here
+
+
+    let runSingleProject project =
+        let arguments =
+            match (hasTeamCity) with
+            | true -> (sprintf "nbench --nobuild --teamcity --concurrent true --trace true --output %s" (outputPerfTests))
+            | false -> (sprintf "nbench --nobuild --concurrent true --trace true --output %s" (outputPerfTests))
+
+        let result = ExecProcess(fun info ->
+            info.FileName <- "dotnet"
+            info.WorkingDirectory <- (Directory.GetParent project).FullName
+            info.Arguments <- arguments) (TimeSpan.FromMinutes 30.0) 
+        
+        ResultHandling.failBuildIfXUnitReportedError TestRunnerErrorLevel.Error result
+    
+    projects |> Seq.iter runSingleProject
 
 //--------------------------------------------------------------------------------
 // Code signing targets
@@ -298,13 +322,14 @@ Target "RunTestsNetCoreFull" DoNothing
 "Build" ==> "RunTestsNetCore"
 
 // nuget dependencies
-"Clean" ==> "RestorePackages" ==> "Build" ==> "CreateNuget" 
-"CreateNuget" ==> "PublishNuget" ==> "Nuget"
+"Clean" ==> "Build" ==> "CreateNuget" 
+"CreateNuget" ==> "SignPackages" ==> "PublishNuget" ==> "Nuget"
 
 // all
 "BuildRelease" ==> "All"
 "RunTests" ==> "All"
 "RunTestsNetCore" ==> "All"
+"NBench" ==> "All"
 "Nuget" ==> "All"
 
 RunTargetOrDefault "Help"
