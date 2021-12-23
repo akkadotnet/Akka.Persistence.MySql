@@ -30,7 +30,7 @@ Param(
 )
 
 $FakeVersion = "4.63.0"
-$NugetVersion = "4.3.0";
+$NugetVersion = "5.8.0";
 $NugetUrl = "https://dist.nuget.org/win-x86-commandline/v$NugetVersion/nuget.exe"
 
 # Make sure tools folder exists
