@@ -1,3 +1,7 @@
+#### 1.4.35 March 23 2022 ####
+* [Update Akka.NET to v1.4.35](https://github.com/akkadotnet/akka.net/releases/tag/1.4.35)
+* [Update MySql.Data to v8.0.28](https://github.com/akkadotnet/Akka.Persistence.MySql/pull/41)
+
 #### 1.4.32 January 19 2022 ####
 * [Update Akka.NET to v1.4.32](https://github.com/akkadotnet/akka.net/releases/tag/1.4.32)
 
