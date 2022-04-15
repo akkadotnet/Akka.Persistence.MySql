@@ -17,7 +17,7 @@
         <NetCoreTestVersion>netcoreapp3.1</NetCoreTestVersion>
 
         <!-- Nuget package versions -->
-        <AkkaVersion>1.4.35</AkkaVersion>
+        <AkkaVersion>1.4.37</AkkaVersion>
         <MicrosoftSdkVersion>3.1.22</MicrosoftSdkVersion>
 
         <!-- Unit test Nuget package versions -->
