@@ -10,7 +10,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftSdkVersion)" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="$(MicrosoftSdkVersion)" />
-        <PackageReference Include="Docker.DotNet" Version="3.125.10" />
+        <PackageReference Include="Docker.DotNet" Version="3.125.12" />
         <PackageReference Include="xunit" Version="$(XunitVersion)" />
         <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
     </ItemGroup>
