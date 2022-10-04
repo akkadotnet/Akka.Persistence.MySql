@@ -23,6 +23,6 @@
         <!-- Unit test Nuget package versions -->
         <XunitVersion>2.4.2</XunitVersion>
         <NBenchVersion>1.2.2</NBenchVersion>
-        <TestSdkVersion>17.3.1</TestSdkVersion>
+        <TestSdkVersion>17.3.2</TestSdkVersion>
     </PropertyGroup>
 </Project>
