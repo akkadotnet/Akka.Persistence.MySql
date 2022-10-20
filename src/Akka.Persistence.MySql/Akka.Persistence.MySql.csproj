@@ -16,7 +16,7 @@
       <PackageReference Include="Akka" Version="$(AkkaVersion)" />
       <PackageReference Include="Akka.Persistence" Version="$(AkkaVersion)" />
       <PackageReference Include="Akka.Persistence.Sql.Common" Version="$(AkkaVersion)" />
-      <PackageReference Include="MySql.Data" Version="8.0.30" />
+      <PackageReference Include="MySql.Data" Version="8.0.31" />
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
