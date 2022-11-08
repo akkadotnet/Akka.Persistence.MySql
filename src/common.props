@@ -18,7 +18,7 @@
 
         <!-- Nuget package versions -->
         <AkkaVersion>1.4.45</AkkaVersion>
-        <MicrosoftSdkVersion>3.1.22</MicrosoftSdkVersion>
+        <MicrosoftSdkVersion>7.0.0</MicrosoftSdkVersion>
 
         <!-- Unit test Nuget package versions -->
         <XunitVersion>2.4.2</XunitVersion>
