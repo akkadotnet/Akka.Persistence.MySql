@@ -4,6 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+using System;
 using Akka.Configuration;
 using Akka.Persistence.TCK.Journal;
 using Xunit;
@@ -45,6 +46,7 @@ namespace Akka.Persistence.MySql.Tests
             Initialize();
         }
 
+        [Obsolete]
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
