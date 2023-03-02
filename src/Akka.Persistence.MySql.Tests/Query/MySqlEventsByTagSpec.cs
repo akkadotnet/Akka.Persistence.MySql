@@ -61,9 +61,9 @@ namespace Akka.Persistence.MySql.Tests.Query
             ReadJournal = Sys.ReadJournalFor<SqlReadJournal>(SqlReadJournal.Identifier);
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void AfterAll()
         {
-            base.Dispose(disposing);
+            base.AfterAll();
             DbUtils.Clean();
         }
     }
