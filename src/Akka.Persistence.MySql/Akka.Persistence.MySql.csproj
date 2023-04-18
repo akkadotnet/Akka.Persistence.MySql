@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <Import Project="../common.props" />
     <PropertyGroup>
@@ -16,7 +16,7 @@
       <PackageReference Include="Akka" Version="$(AkkaVersion)" />
       <PackageReference Include="Akka.Persistence" Version="$(AkkaVersion)" />
       <PackageReference Include="Akka.Persistence.Sql.Common" Version="$(AkkaVersion)" />
-      <PackageReference Include="MySql.Data" Version="8.0.32" />
+      <PackageReference Include="MySql.Data" Version="8.0.33" />
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
