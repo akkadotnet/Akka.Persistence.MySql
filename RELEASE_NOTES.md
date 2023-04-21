@@ -1,3 +1,9 @@
+#### 1.5.3 April 22 2023 ####
+
+* [Update Akka.NET to v1.5.3](https://github.com/akkadotnet/akka.net/releases/tag/1.5.3) 
+* [Update MySql.Data to 8.0.33](https://github.com/akkadotnet/Akka.Persistence.MySql/pull/92)
+* [Implement per query isolation level setting from Akka.NET 1.5.3](https://github.com/akkadotnet/Akka.Persistence.MySql/pull/92)
+
 #### 1.5.0 March 3 2023 ####
 * [Update Akka.NET to v1.5.0](https://github.com/akkadotnet/akka.net/releases/tag/1.5.0)
 * [Update MySql.Data to 8.0.32](https://github.com/akkadotnet/Akka.Persistence.MySql/pull/79)
