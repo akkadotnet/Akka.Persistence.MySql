@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <Import Project="../common.props" />
     
     <PropertyGroup>
@@ -10,7 +10,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftSdkVersion)" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="$(MicrosoftSdkVersion)" />
-        <PackageReference Include="Docker.DotNet" Version="3.125.13" />
+        <PackageReference Include="Docker.DotNet" Version="3.125.14" />
         <PackageReference Include="xunit" Version="$(XunitVersion)" />
         <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
     </ItemGroup>
