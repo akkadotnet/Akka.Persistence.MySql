@@ -5,7 +5,10 @@
 //-----------------------------------------------------------------------
 
 using System.Data.Common;
+using System.Runtime.CompilerServices;
+using Akka.Annotations;
 using Akka.Configuration;
+using Akka.Persistence.Sql.Common;
 using Akka.Persistence.Sql.Common.Snapshot;
 using MySql.Data.MySqlClient;
 
@@ -21,7 +24,16 @@ namespace Akka.Persistence.MySql.Snapshot
         public MySqlSnapshotStore(Config config) : base(config)
         {
             var sqlConfig = config.WithFallback(Extension.DefaultSnapshotConfig);
-            QueryExecutor = new MySqlSnapshotQueryExecutor(new QueryConfiguration(
+            QueryExecutor = new MySqlSnapshotQueryExecutor(
+                CreateQueryConfiguration(sqlConfig, Settings),
+                Context.System.Serialization);
+        }
+
+        [InternalApi]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static QueryConfiguration CreateQueryConfiguration(Config config, SnapshotStoreSettings settings)
+        {
+            return new QueryConfiguration(
                 schemaName: config.GetString("schema-name"),
                 snapshotTableName: config.GetString("table-name"),
                 persistenceIdColumnName: "persistence_id",
@@ -30,10 +42,11 @@ namespace Akka.Persistence.MySql.Snapshot
                 manifestColumnName: "manifest",
                 timestampColumnName: "created_at",
                 serializerIdColumnName: "serializer_id",
-                timeout: sqlConfig.GetTimeSpan("connection-timeout"),
-                defaultSerializer: config.GetString("default-serializer"), 
-                useSequentialAccess: config.GetBoolean("sequential-access")),
-                Context.System.Serialization);
+                timeout: config.GetTimeSpan("connection-timeout"),
+                defaultSerializer: config.GetString("serializer"), 
+                useSequentialAccess: config.GetBoolean("sequential-access"),
+                readIsolationLevel: settings.ReadIsolationLevel,
+                writeIsolationLevel: settings.WriteIsolationLevel);
         }
 
         protected override DbConnection CreateDbConnection(string connectionString) => new MySqlConnection(connectionString);
