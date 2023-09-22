@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="../common.props" />
-    
     <PropertyGroup>
       <TargetFrameworks>$(NetFrameworkTestVersion);$(NetCoreTestVersion)</TargetFrameworks>
+      <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,6 +12,13 @@
         <PackageReference Include="Docker.DotNet" Version="3.125.15" />
         <PackageReference Include="xunit" Version="$(XunitVersion)" />
         <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
+        <PackageReference Include="Akka.Persistence.Sql.TestKit" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Xml" />
+        <PackageReference Include="Docker.DotNet" />
+        <PackageReference Include="xunit" />
+        <PackageReference Include="xunit.runner.visualstudio" />
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

@@ -28,4 +28,4 @@ jobs:
     name: Ubuntu
     vmImage: 'ubuntu-20.04'
     scriptFileName: ./build.sh
-    scriptArgs: runTestsNetCore
+    scriptArgs: runTestsNet

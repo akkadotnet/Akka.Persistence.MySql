@@ -1,0 +1,31 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Nuget package versions -->
+    <AkkaVersion>1.5.8</AkkaVersion>
+    <MicrosoftSdkVersion>7.0.0</MicrosoftSdkVersion>
+  </PropertyGroup>
+  <!-- App dependencies -->
+  <ItemGroup>
+    <PackageVersion Include="Akka" Version="$(AkkaVersion)" />
+    <PackageVersion Include="Akka.Persistence" Version="$(AkkaVersion)" />
+    <PackageVersion Include="Akka.Persistence.Sql.Common" Version="$(AkkaVersion)" />
+    <PackageVersion Include="MySql.Data" Version="8.0.33" />
+  </ItemGroup>
+  <!-- Test dependencies -->
+  <ItemGroup>
+    <PackageVersion Include="Akka.Persistence.Sql.TestKit" Version="$(AkkaVersion)" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.6.2" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftSdkVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Xml" Version="$(MicrosoftSdkVersion)" />
+    <PackageVersion Include="Docker.DotNet" Version="3.125.14" />
+    <PackageVersion Include="xunit" Version="2.4.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.2" />
+    <PackageVersion Include="NBench" Version="1.2.2" />
+    <PackageVersion Include="FluentAssertions" Version="6.12.0" />
+  </ItemGroup>
+  <!-- SourceLink support for all Akka.NET projects -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+  </ItemGroup>
+</Project>

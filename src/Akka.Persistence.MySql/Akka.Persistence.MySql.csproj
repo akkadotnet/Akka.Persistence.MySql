@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="../common.props" />
     <PropertyGroup>
       <AssemblyTitle>Akka.Persistence.MySql</AssemblyTitle>
       <Description>Akka.NET Persistence journal and snapshot store backed by MySql.</Description>
@@ -13,10 +12,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Akka" Version="$(AkkaVersion)" />
-      <PackageReference Include="Akka.Persistence" Version="$(AkkaVersion)" />
-      <PackageReference Include="Akka.Persistence.Sql.Common" Version="$(AkkaVersion)" />
-      <PackageReference Include="MySql.Data" Version="8.0.33" />
+      <PackageReference Include="Akka" />
+      <PackageReference Include="Akka.Persistence" />
+      <PackageReference Include="Akka.Persistence.Sql.Common" />
+      <PackageReference Include="MySql.Data" />
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

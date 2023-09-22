@@ -7,20 +7,20 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Akka.Persistence.MySql", "A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Akka.Persistence.MySql.Tests", "Akka.Persistence.MySql.Tests\Akka.Persistence.MySql.Tests.csproj", "{2D1812FD-70C0-43EE-9C25-3980E41F30E1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{F945729D-A58F-4340-9341-FE45E6EDF3A8}"
-	ProjectSection(SolutionItems) = preProject
-		..\appveyor.yml = ..\appveyor.yml
-		..\build.cmd = ..\build.cmd
-		..\build.fsx = ..\build.fsx
-		..\build.sh = ..\build.sh
-		..\build.ps1 = ..\build.ps1
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EEDB424A-4F28-4171-99D1-08C8DA880BE6}"
 	ProjectSection(SolutionItems) = preProject
-		common.props = common.props
 		..\README.md = ..\README.md
 		..\RELEASE_NOTES.md = ..\RELEASE_NOTES.md
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build-system", "build-system", "{9AC42725-E33B-4F78-9FD9-C3AAF71D6584}"
+	ProjectSection(SolutionItems) = preProject
+		..\build-system\azure-pipeline.template.yaml = ..\build-system\azure-pipeline.template.yaml
+		..\build-system\pr-validation.yaml = ..\build-system\pr-validation.yaml
+		..\build-system\README.md = ..\build-system\README.md
+		..\build-system\windows-release.yaml = ..\build-system\windows-release.yaml
 	EndProjectSection
 EndProject
 Global
@@ -43,5 +43,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4C15D702-DBF7-4E33-87CB-18BF8DC98253}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9AC42725-E33B-4F78-9FD9-C3AAF71D6584} = {EEDB424A-4F28-4171-99D1-08C8DA880BE6}
 	EndGlobalSection
 EndGlobal

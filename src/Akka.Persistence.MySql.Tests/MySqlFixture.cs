@@ -42,7 +42,7 @@ namespace Akka.Persistence.MySql.Tests
         }
 
         protected string ImageName => "mysql";
-        protected string Tag => "8";
+        protected string Tag => "latest";
 
         protected string SqlServerImageName => $"{ImageName}:{Tag}";
 
