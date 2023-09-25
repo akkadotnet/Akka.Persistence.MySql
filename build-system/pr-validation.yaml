@@ -26,6 +26,6 @@ jobs:
 - template: azure-pipeline.template.yaml
   parameters:
     name: Ubuntu
-    vmImage: 'ubuntu-20.04'
+    vmImage: 'ubuntu-latest'
     scriptFileName: ./build.sh
     scriptArgs: runTestsNetCore

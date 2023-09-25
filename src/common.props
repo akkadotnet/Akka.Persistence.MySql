@@ -17,11 +17,11 @@
         <NetCoreTestVersion>netcoreapp3.1</NetCoreTestVersion>
 
         <!-- Nuget package versions -->
-        <AkkaVersion>1.5.8</AkkaVersion>
+        <AkkaVersion>1.5.13</AkkaVersion>
         <MicrosoftSdkVersion>7.0.0</MicrosoftSdkVersion>
 
         <!-- Unit test Nuget package versions -->
-        <XunitVersion>2.4.2</XunitVersion>
+        <XunitVersion>2.5.0</XunitVersion>
         <NBenchVersion>1.2.2</NBenchVersion>
         <TestSdkVersion>17.6.2</TestSdkVersion>
     </PropertyGroup>
