@@ -49,7 +49,7 @@ let outputNuGet = output @@ "nuget"
 // Configuration values for tests
 let testNetFrameworkVersion = "net471"
 let testNetCoreVersion = "netcoreapp3.1"
-let testNetVersion = "net5.0"
+let testNetVersion = "net7.0"
 
 Target "Clean" (fun _ ->
     CleanDir output
@@ -70,8 +70,8 @@ Target "RestorePackages" (fun _ ->
 )
 
 Target "AssemblyInfo" (fun _ ->
-    XmlPokeInnerText "./src/common.props" "//Project/PropertyGroup/VersionPrefix" releaseNotes.AssemblyVersion
-    XmlPokeInnerText "./src/common.props" "//Project/PropertyGroup/PackageReleaseNotes" (releaseNotes.Notes |> String.concat "\n")
+    XmlPokeInnerText "./src/Directory.Build.props" "//Project/PropertyGroup/VersionPrefix" releaseNotes.AssemblyVersion
+    XmlPokeInnerText "./src/Directory.Build.props" "//Project/PropertyGroup/PackageReleaseNotes" (releaseNotes.Notes |> String.concat "\n")
 )
 
 Target "Build" (fun _ ->
@@ -129,7 +129,7 @@ Target "RunTests" (fun _ ->
     projects |> Seq.iter (runSingleProject)
 )
 
-Target "RunTestsNetCore" (fun _ ->
+Target "RunTestsNet" (fun _ ->
     let projects = 
         match (isWindows) with 
         | true -> !! "./src/**/*.Tests.csproj"
@@ -138,8 +138,8 @@ Target "RunTestsNetCore" (fun _ ->
     let runSingleProject project =
         let arguments =
             match (hasTeamCity) with
-            | true -> (sprintf "test -c Release --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s --results-directory %s -- -parallel none -teamcity" testNetCoreVersion outputTests)
-            | false -> (sprintf "test -c Release --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s --results-directory %s -- -parallel none" testNetCoreVersion outputTests)
+            | true -> (sprintf "test -c Release --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s --results-directory %s -- -parallel none -teamcity" testNetVersion outputTests)
+            | false -> (sprintf "test -c Release --no-build --logger:trx --logger:\"console;verbosity=normal\" --framework %s --results-directory %s -- -parallel none" testNetVersion outputTests)
 
         let result = ExecProcess(fun info ->
             info.FileName <- "dotnet"
@@ -250,30 +250,32 @@ Target "CreateNuget" (fun _ ->
 )
 
 Target "PublishNuget" (fun _ ->
-    let projects = !! "./bin/nuget/*.nupkg" -- "./bin/nuget/*.symbols.nupkg"
-    let apiKey = getBuildParamOrDefault "nugetkey" ""
-    let source = getBuildParamOrDefault "nugetpublishurl" ""
-    let symbolSource = getBuildParamOrDefault "symbolspublishurl" ""
-    let shouldPublishSymbolsPackages = not (symbolSource = "")
-
-    if (not (source = "") && not (apiKey = "") && shouldPublishSymbolsPackages) then
-        let runSingleProject project =
-            DotNetCli.RunCommand
-                (fun p -> 
-                    { p with 
-                        TimeOut = TimeSpan.FromMinutes 10. })
-                (sprintf "nuget push %s --api-key %s --source %s --symbol-source %s" project apiKey source symbolSource)
-
-        projects |> Seq.iter (runSingleProject)
-    else if (not (source = "") && not (apiKey = "") && not shouldPublishSymbolsPackages) then
-        let runSingleProject project =
-            DotNetCli.RunCommand
-                (fun p -> 
-                    { p with 
-                        TimeOut = TimeSpan.FromMinutes 10. })
-                (sprintf "nuget push %s --api-key %s --source %s" project apiKey source)
-
-        projects |> Seq.iter (runSingleProject)
+    let shouldPushNugetPackages = hasBuildParam "nugetkey"
+    if not shouldPushNugetPackages then ()
+    else
+        let apiKey = getBuildParam "nugetkey"
+        let sourceUrl = getBuildParamOrDefault "nugetpublishurl" "https://api.nuget.org/v3/index.json"
+        
+        let rec publishPackage retryLeft packageFile =
+            tracefn "Pushing %s Attempts left: %d" (FullName packageFile) retryLeft
+            let tracing = ProcessHelper.enableProcessTracing
+            try
+                try
+                    ProcessHelper.enableProcessTracing <- false
+                    DotNetCli.RunCommand
+                        (fun p ->
+                            { p with
+                                TimeOut = TimeSpan.FromMinutes 10. })
+                        (sprintf "nuget push %s --api-key %s --source %s --no-service-endpoint" packageFile apiKey sourceUrl)
+                with exn ->
+                    if (retryLeft > 0) then (publishPackage (retryLeft-1) packageFile)
+            finally
+                ProcessHelper.enableProcessTracing <- tracing
+                
+        printfn "Pushing nuget packages"
+        let normalPackages = !! (outputNuGet @@ "*.nupkg") |> Seq.sortBy(fun x -> x.ToLower())
+        for package in normalPackages do
+            publishPackage 3 package
 )
 
 //--------------------------------------------------------------------------------
@@ -320,14 +322,14 @@ Target "BuildRelease" DoNothing
 Target "All" DoNothing
 Target "Nuget" DoNothing
 Target "RunTestsFull" DoNothing
-Target "RunTestsNetCoreFull" DoNothing
+Target "RunTestsNetFull" DoNothing
 
 // build dependencies
 "Clean" ==> "RestorePackages" ==> "AssemblyInfo" ==> "Build" ==> "BuildRelease"
 
 // tests dependencies
 "Build" ==> "RunTests"
-"Build" ==> "RunTestsNetCore"
+"Build" ==> "RunTestsNet"
 
 // nuget dependencies
 "Clean" ==> "Build" ==> "CreateNuget" 
@@ -336,7 +338,7 @@ Target "RunTestsNetCoreFull" DoNothing
 // all
 "BuildRelease" ==> "All"
 "RunTests" ==> "All"
-"RunTestsNetCore" ==> "All"
+"RunTestsNet" ==> "All"
 "NBench" ==> "All"
 "Nuget" ==> "All"
 

@@ -28,4 +28,4 @@ jobs:
     name: Ubuntu
     vmImage: 'ubuntu-latest'
     scriptFileName: ./build.sh
-    scriptArgs: runTestsNetCore
+    scriptArgs: runTestsNet
