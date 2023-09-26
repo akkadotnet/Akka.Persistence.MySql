@@ -15,7 +15,7 @@
   <!-- Test dependencies -->
   <ItemGroup>
     <PackageVersion Include="Akka.Persistence.Sql.TestKit" Version="$(AkkaVersion)" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.6.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftSdkVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Xml" Version="$(MicrosoftSdkVersion)" />
     <PackageVersion Include="Docker.DotNet" Version="3.125.14" />
