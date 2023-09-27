@@ -22,6 +22,11 @@ variables:
   - name: githubRepositoryName
     value: akkadotnet/Akka.Persistence.MySql
 steps:
+- task: UseDotNet@2
+  displayName: 'Use .NET 7'
+  inputs:
+    version: '7.x'
+
 - task: BatchScript@1
   displayName: 'FAKE Build'
   inputs:
