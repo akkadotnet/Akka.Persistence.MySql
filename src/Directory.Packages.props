@@ -10,7 +10,7 @@
     <PackageVersion Include="Akka" Version="$(AkkaVersion)" />
     <PackageVersion Include="Akka.Persistence" Version="$(AkkaVersion)" />
     <PackageVersion Include="Akka.Persistence.Sql.Common" Version="$(AkkaVersion)" />
-    <PackageVersion Include="MySql.Data" Version="8.0.33" />
+    <PackageVersion Include="MySql.Data" Version="8.1.0" />
   </ItemGroup>
   <!-- Test dependencies -->
   <ItemGroup>
