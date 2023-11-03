@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <!-- Nuget package versions -->
-    <AkkaVersion>1.5.13</AkkaVersion>
+    <AkkaVersion>1.5.14</AkkaVersion>
     <MicrosoftSdkVersion>7.0.0</MicrosoftSdkVersion>
   </PropertyGroup>
   <!-- App dependencies -->
