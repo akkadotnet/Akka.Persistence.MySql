@@ -3,7 +3,7 @@
     <PropertyGroup>
       <AssemblyTitle>Akka.Persistence.MySql</AssemblyTitle>
       <Description>Akka.NET Persistence journal and snapshot store backed by MySql.</Description>
-      <TargetFramework>$(NetStandardLibVersion)</TargetFramework>
+      <TargetFrameworks>$(NetStandardLibVersion);$(NetLibVersion)</TargetFrameworks>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <!-- Nuget package versions -->
-    <AkkaVersion>1.5.13</AkkaVersion>
+    <AkkaVersion>1.5.37</AkkaVersion>
     <MicrosoftSdkVersion>7.0.0</MicrosoftSdkVersion>
   </PropertyGroup>
   <!-- App dependencies -->
@@ -19,8 +19,8 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftSdkVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Xml" Version="$(MicrosoftSdkVersion)" />
     <PackageVersion Include="Docker.DotNet" Version="3.125.15" />
-    <PackageVersion Include="xunit" Version="2.5.1" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.1" />
+    <PackageVersion Include="xunit" Version="2.8.1" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageVersion Include="NBench" Version="2.0.1" />
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
   </ItemGroup>
